@@ -11,7 +11,9 @@ import {
   Activity,
   Database,
   LogOut,
-  User
+  User,
+  PlusCircle,
+  MapPin
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,6 +23,13 @@ interface SidebarProps {
 
 export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const { profile, signOut } = useAuth();
+
+  const citizenMenuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'report-form', label: 'Report Hazard', icon: PlusCircle },
+    { id: 'reports-map', label: 'View Reports', icon: MapPin },
+    { id: 'map', label: 'Interactive Map', icon: Map },
+  ];
 
   const analystMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -37,9 +46,19 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
     { id: 'resources', label: 'Emergency Resources', icon: Database },
   ];
 
-  const menuItems = profile?.role === 'govt official' 
-    ? officialMenuItems 
-    : analystMenuItems;
+  const getMenuItems = () => {
+    switch (profile?.role) {
+      case 'govt official':
+        return officialMenuItems;
+      case 'hazard analyst':
+        return analystMenuItems;
+      case 'citizen':
+      default:
+        return citizenMenuItems;
+    }
+  };
+
+  const menuItems = getMenuItems();
 
   const handleSignOut = async () => {
     try {

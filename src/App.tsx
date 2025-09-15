@@ -8,6 +8,8 @@ import Header from './components/layout/Header';
 import DashboardOverview from './components/dashboard/DashboardOverview';
 import InteractiveMap from './components/map/InteractiveMap';
 import ReportsView from './components/reports/ReportsView';
+import CitizenReportForm from './components/reports/CitizenReportForm';
+import ReportsMapView from './components/reports/ReportsMapView';
 import AlertsView from './components/alerts/AlertsView';
 
 function App() {
@@ -25,7 +27,7 @@ function App() {
       } else if (profile.role === 'hazard analyst') {
         setActiveView('dashboard');
       } else {
-        setActiveView('dashboard'); // Citizens also start with dashboard
+        setActiveView('report-form'); // Citizens start with report form
       }
     }
   }, [user, profile]);
@@ -76,6 +78,8 @@ function App() {
       case 'dashboard': return 'Dashboard Overview';
       case 'map': return 'Interactive Map';
       case 'reports': return 'Citizen Reports';
+      case 'report-form': return 'Report Ocean Hazard';
+      case 'reports-map': return 'Reports Map View';
       case 'alerts': return 'Alert Management';
       case 'validation': return 'Validation Queue';
       case 'predictions': return 'AI Predictions';
@@ -91,6 +95,8 @@ function App() {
       case 'dashboard': return 'Real-time monitoring and system overview';
       case 'map': return 'Interactive coastal hazard visualization';
       case 'reports': return 'Citizen-submitted hazard reports and validation';
+      case 'report-form': return 'Submit a new ocean hazard report with location and media';
+      case 'reports-map': return 'View all submitted reports on an interactive map';
       case 'alerts': return 'Create and manage emergency alerts';
       case 'validation': return 'Review and verify pending reports';
       case 'predictions': return 'AI-generated hazard predictions and forecasts';
@@ -108,6 +114,10 @@ function App() {
         return <InteractiveMap />;
       case 'reports':
         return <ReportsView />;
+      case 'report-form':
+        return <CitizenReportForm />;
+      case 'reports-map':
+        return <ReportsMapView />;
       case 'alerts':
         return <AlertsView />;
       case 'validation':
