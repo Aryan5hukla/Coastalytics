@@ -1,4 +1,4 @@
-# 🌊 Ocean Hazard Citizen Reporting Platform
+ # 🌊 Ocean Hazard Citizen Reporting Platform
 
 A comprehensive web application that enables citizens to report ocean hazards and unusual activities with geolocation, media uploads, and real-time monitoring capabilities.
 

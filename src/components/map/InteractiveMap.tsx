@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
 import { supabase, Report, Alert, PredictedHazard, Resource } from '../../lib/supabase';
 import { 
   Layers, 
@@ -13,96 +15,158 @@ import {
   Building
 } from 'lucide-react';
 
-// Mock map component since we can't use actual Mapbox without API key
-function MockMap({ reports, alerts, hazards, resources, selectedLayers }: {
+// Fix for default icon issue with webpack
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
+
+// Custom icons for different data types
+const createCustomIcon = (color: string, icon: string) => {
+  return L.divIcon({
+    html: `<div style="background-color: ${color};" class="w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold">${icon}</div>`,
+    className: 'custom-div-icon',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+};
+
+// Real Leaflet map component
+function RealMap({ reports, alerts, hazards, resources, selectedLayers }: {
   reports: Report[];
   alerts: Alert[];
   hazards: PredictedHazard[];
   resources: Resource[];
   selectedLayers: string[];
 }) {
+  // Generate mock coordinates for items that don't have location data
+  const getCoordinates = (item: any, index: number) => {
+    if (item.location && item.location.coordinates) {
+      // Return real coordinates if available (longitude, latitude format in PostGIS)
+      console.log(`Report ${item.id} has real coordinates:`, item.location.coordinates);
+      return [item.location.coordinates[1], item.location.coordinates[0]];
+    }
+    // Generate predictable coordinates based on index for items without location
+    // This ensures they don't overlap and are consistently placed
+    const baseLatitudes = [20.5, 22.3, 19.8, 25.1, 17.6]; // Different cities in India
+    const baseLongitudes = [78.9, 77.2, 75.1, 82.3, 83.2];
+    
+    const lat = baseLatitudes[index % baseLatitudes.length] + (Math.random() - 0.5) * 2;
+    const lng = baseLongitudes[index % baseLongitudes.length] + (Math.random() - 0.5) * 2;
+    
+    console.log(`Report ${item.id} using mock coordinates [${lat}, ${lng}] (index: ${index})`);
+    return [lat, lng];
+  };
+
   return (
-    <div className="relative w-full h-full bg-slate-700 rounded-lg overflow-hidden">
-      {/* Mock coastline */}
-      <svg className="absolute inset-0 w-full h-full">
-        <path
-          d="M0,200 Q100,150 200,180 Q300,220 400,190 Q500,160 600,200 Q700,240 800,210 Q900,180 1000,220 L1000,400 L0,400 Z"
-          fill="#1e293b"
-          stroke="#0ea5e9"
-          strokeWidth="2"
-        />
-      </svg>
+    <MapContainer 
+      center={[20.5937, 78.9629]} // Center of India
+      zoom={5} 
+      scrollWheelZoom={true} 
+      style={{ height: '100%', width: '100%' }}
+      className="rounded-lg"
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      
+      {/* Citizen Reports */}
+      {selectedLayers.includes('reports') && reports.map((report, index) => {
+        console.log(`Rendering report ${index + 1}/${reports.length}:`, report.title, report.id);
+        const [lat, lng] = getCoordinates(report, index);
+        console.log(`Using coordinates [${lat}, ${lng}] for report ${report.id}`);
+        return (
+          <Marker key={report.id} position={[lat, lng]}>
+            <Popup>
+              <div className="p-2 min-w-[200px]">
+                <h4 className="font-bold text-sm mb-2 flex items-center">
+                  <AlertTriangle className="w-4 h-4 mr-2 text-yellow-500" />
+                  {report.title}
+                </h4>
+                <p className="text-xs mb-2">{report.description}</p>
+                <div className="text-xs text-gray-600">
+                  <div>Type: {report.hazard_type}</div>
+                  <div>Status: {report.status}</div>
+                  <div>Urgency: {report.urgency_level}/5</div>
+                  <div>Reported: {new Date(report.created_at).toLocaleString()}</div>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
 
-      {/* Map overlay with data points */}
-      <div className="absolute inset-4">
-        {/* Reports */}
-        {selectedLayers.includes('reports') && reports.slice(0, 10).map((report, index) => (
-          <div
-            key={report.id}
-            className="absolute w-3 h-3 bg-yellow-400 rounded-full border-2 border-yellow-600 cursor-pointer hover:scale-150 transition-transform"
-            style={{
-              left: `${20 + (index * 80) % 800}px`,
-              top: `${100 + Math.sin(index) * 50 + 100}px`,
-            }}
-            title={`Report: ${report.title}`}
-          >
-            <div className="absolute -top-1 -left-1">
-              <AlertTriangle className="w-5 h-5 text-yellow-400" />
-            </div>
-          </div>
-        ))}
+      {/* Active Alerts */}
+      {selectedLayers.includes('alerts') && alerts.map((alert, index) => {
+        const [lat, lng] = getCoordinates(alert, index);
+        return (
+          <Marker key={alert.id} position={[lat, lng]}>
+            <Popup>
+              <div className="p-2 min-w-[200px]">
+                <h4 className="font-bold text-sm mb-2 flex items-center">
+                  <Shield className="w-4 h-4 mr-2 text-red-500" />
+                  {alert.title}
+                </h4>
+                <p className="text-xs mb-2">{alert.message}</p>
+                <div className="text-xs text-gray-600">
+                  <div>Priority: {alert.priority}</div>
+                  <div>Status: {alert.status}</div>
+                  <div>Affected: {alert.affected_population_estimate?.toLocaleString() || 'Unknown'}</div>
+                  <div>Created: {new Date(alert.created_at).toLocaleString()}</div>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
 
-        {/* Active Alerts */}
-        {selectedLayers.includes('alerts') && alerts.slice(0, 5).map((alert, index) => (
-          <div
-            key={alert.id}
-            className="absolute w-8 h-8 bg-red-500/30 rounded-full border-2 border-red-500 animate-pulse cursor-pointer"
-            style={{
-              left: `${100 + (index * 150) % 700}px`,
-              top: `${80 + Math.cos(index) * 40 + 120}px`,
-            }}
-            title={`Alert: ${alert.title}`}
-          >
-            <Shield className="w-4 h-4 text-red-400 absolute top-1 left-1" />
-          </div>
-        ))}
+      {/* AI Predictions */}
+      {selectedLayers.includes('hazards') && hazards.map((hazard, index) => {
+        const [lat, lng] = getCoordinates(hazard, index);
+        return (
+          <Marker key={hazard.id} position={[lat, lng]}>
+            <Popup>
+              <div className="p-2 min-w-[200px]">
+                <h4 className="font-bold text-sm mb-2 flex items-center">
+                  <Activity className="w-4 h-4 mr-2 text-purple-500" />
+                  AI Prediction
+                </h4>
+                <div className="text-xs text-gray-600">
+                  <div>Type: {hazard.hazard_type}</div>
+                  <div>Confidence: {Math.round(hazard.confidence_level * 100)}%</div>
+                  <div>Predicted: {new Date(hazard.predicted_date).toLocaleString()}</div>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
 
-        {/* Predicted Hazards */}
-        {selectedLayers.includes('hazards') && hazards.slice(0, 3).map((hazard, index) => (
-          <div
-            key={hazard.id}
-            className="absolute w-12 h-12 bg-purple-500/20 rounded-full border-2 border-purple-500 cursor-pointer"
-            style={{
-              left: `${200 + (index * 200) % 600}px`,
-              top: `${120 + index * 30 + 80}px`,
-            }}
-            title={`Prediction: ${hazard.hazard_type} (${Math.round(hazard.confidence_level * 100)}% confidence)`}
-          >
-            <Activity className="w-6 h-6 text-purple-400 absolute top-1.5 left-1.5" />
-          </div>
-        ))}
-
-        {/* Resources */}
-        {selectedLayers.includes('resources') && resources.slice(0, 8).map((resource, index) => (
-          <div
-            key={resource.id}
-            className="absolute w-4 h-4 bg-green-400 rounded-full border-2 border-green-600 cursor-pointer hover:scale-125 transition-transform"
-            style={{
-              left: `${50 + (index * 100) % 800}px`,
-              top: `${150 + Math.sin(index * 2) * 30 + 80}px`,
-            }}
-            title={`Resource: ${resource.name}`}
-          >
-            <Building className="w-3 h-3 text-green-400 absolute -top-0.5 -left-0.5" />
-          </div>
-        ))}
-      </div>
-
-      {/* Map attribution */}
-      <div className="absolute bottom-2 right-2 text-xs text-slate-400 bg-slate-800/80 px-2 py-1 rounded">
-        Mock Map View - Indian Coastal Regions
-      </div>
-    </div>
+      {/* Emergency Resources */}
+      {selectedLayers.includes('resources') && resources.map((resource, index) => {
+        const [lat, lng] = getCoordinates(resource, index);
+        return (
+          <Marker key={resource.id} position={[lat, lng]}>
+            <Popup>
+              <div className="p-2 min-w-[200px]">
+                <h4 className="font-bold text-sm mb-2 flex items-center">
+                  <Building className="w-4 h-4 mr-2 text-green-500" />
+                  {resource.name}
+                </h4>
+                <div className="text-xs text-gray-600">
+                  <div>Type: {resource.type}</div>
+                  <div>Capacity: {resource.capacity}</div>
+                  <div>Contact: {resource.contact_info}</div>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
+    </MapContainer>
   );
 }
 
@@ -136,7 +200,10 @@ export default function InteractiveMap() {
         supabase.from('resources').select('*').eq('is_active', true),
       ]);
 
-      setReports(reportsData.data || []);
+      const reportsList = reportsData.data || [];
+      console.log(`Fetched ${reportsList.length} reports for map:`, reportsList);
+      
+      setReports(reportsList);
       setAlerts(alertsData.data || []);
       setHazards(hazardsData.data || []);
       setResources(resourcesData.data || []);
@@ -277,7 +344,7 @@ export default function InteractiveMap() {
                   </div>
                 </div>
               ) : (
-                <MockMap 
+                <RealMap 
                   reports={reports}
                   alerts={alerts}
                   hazards={hazards}
