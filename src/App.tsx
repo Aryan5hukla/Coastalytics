@@ -11,29 +11,65 @@ import ReportsView from './components/reports/ReportsView';
 import CitizenReportForm from './components/reports/CitizenReportForm';
 import ReportsMapView from './components/reports/ReportsMapView';
 import AlertsView from './components/alerts/AlertsView';
+import AIPredictionView from './components/dashboard/AIPredictionView';
+import SocialMentionsFeed from './components/dashboard/SocialMentionsFeed';
 
 function App() {
   const { user, profile, loading } = useAuth();
-  const [activeView, setActiveView] = useState('dashboard');
+  
+  const [activeView, setActiveView] = useState(''); // Will be set after auth loads
   const [authView, setAuthView] = useState<'landing' | 'login' | 'signup'>('landing');
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [viewParams, setViewParams] = useState<string>('');
 
-  // Reset authView and set initial dashboard view based on user role
+  // Save activeView to localStorage whenever it changes (but only after initialization)
   useEffect(() => {
-    if (user && profile) {
-      setAuthView('landing');
-      // Set initial view based on user role
-      if (profile.role === 'govt official') {
-        setActiveView('dashboard');
-      } else if (profile.role === 'hazard analyst') {
-        setActiveView('dashboard');
-      } else {
-        setActiveView('report-form'); // Citizens start with report form
-      }
+    if (isInitialized && user) {
+      localStorage.setItem('coastalytics_activeView', activeView);
     }
-  }, [user, profile]);
+  }, [activeView, isInitialized, user]);
 
-  // Show loading spinner while checking authentication
-  if (loading) {
+  // Enhanced navigation function to handle view with parameters
+  const navigateToView = (viewWithParams: string) => {
+    if (viewWithParams.includes('?')) {
+      const [view, params] = viewWithParams.split('?');
+      setActiveView(view);
+      setViewParams(params);
+    } else {
+      setActiveView(viewWithParams);
+      setViewParams('');
+    }
+  };
+
+  // Initialize activeView from localStorage or set default based on user role
+  useEffect(() => {
+    if (user && profile && !loading && !isInitialized) {
+      setAuthView('landing');
+      
+      // First, try to get saved view from localStorage
+      const savedView = localStorage.getItem('coastalytics_activeView');
+      
+      if (savedView) {
+        // Use saved view if it exists
+        setActiveView(savedView);
+      } else {
+        // Set default view to dashboard for all users if no saved view
+        setActiveView('dashboard');
+      }
+      
+      setIsInitialized(true);
+    }
+    
+    // Reset when user logs out
+    if (!user && !loading) {
+      setIsInitialized(false);
+      localStorage.removeItem('coastalytics_activeView');
+      setActiveView(''); // Will be set when next user logs in
+    }
+  }, [user, profile, loading, isInitialized]);
+
+  // Show loading spinner while checking authentication or initializing
+  if (loading || (user && !isInitialized)) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -107,17 +143,26 @@ function App() {
   };
 
   const renderActiveView = () => {
+    // Parse view parameters
+    const getFilterFromParams = () => {
+      if (viewParams) {
+        const urlParams = new URLSearchParams(viewParams);
+        return urlParams.get('status');
+      }
+      return null;
+    };
+
     switch (activeView) {
       case 'dashboard':
-        return <DashboardOverview />;
+        return <DashboardOverview onNavigate={navigateToView} />;
       case 'map':
         return <InteractiveMap />;
       case 'reports':
-        return <ReportsView />;
+        return <ReportsView initialStatusFilter={getFilterFromParams()} />;
       case 'report-form':
         return <CitizenReportForm />;
       case 'reports-map':
-        return <ReportsMapView />;
+        return <ReportsMapView initialStatusFilter={getFilterFromParams()} />;
       case 'alerts':
         return <AlertsView />;
       case 'validation':
@@ -130,23 +175,9 @@ function App() {
           </div>
         );
       case 'predictions':
-        return (
-          <div className="p-6">
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-12 text-center">
-              <h2 className="text-xl font-bold text-white mb-4">AI Predictions</h2>
-              <p className="text-slate-400">Hazard prediction algorithms and forecasts will be displayed here.</p>
-            </div>
-          </div>
-        );
+        return <AIPredictionView />;
       case 'social':
-        return (
-          <div className="p-6">
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-12 text-center">
-              <h2 className="text-xl font-bold text-white mb-4">Social Media Monitor</h2>
-              <p className="text-slate-400">Social media analysis and sentiment tracking will be shown here.</p>
-            </div>
-          </div>
-        );
+        return <SocialMentionsFeed />;
       case 'resources':
         return (
           <div className="p-6">
@@ -166,15 +197,15 @@ function App() {
           </div>
         );
       default:
-        return <DashboardOverview />;
+        return <DashboardOverview onNavigate={navigateToView} />;
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-slate-900">
       <Sidebar activeView={activeView} onViewChange={setActiveView} />
       
-      <div className="flex-1 flex flex-col">
+      <div className="ml-64 flex flex-col min-h-screen">
         <Header 
           title={getViewTitle(activeView)}
           subtitle={getViewSubtitle(activeView)}

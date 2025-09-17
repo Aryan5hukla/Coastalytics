@@ -4,7 +4,10 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.error('Missing Supabase environment variables. Please create a .env file with:');
+  console.error('VITE_SUPABASE_URL=your_supabase_project_url');
+  console.error('VITE_SUPABASE_ANON_KEY=your_supabase_anon_key');
+  throw new Error('Missing Supabase environment variables. Please check the console for setup instructions.');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -99,6 +102,22 @@ export interface Resource {
   is_active: boolean;
   operating_hours: string;
   services_offered: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SocialMention {
+  id: string;
+  content: string;
+  source: string;
+  author?: string;
+  posted_at?: string;
+  scraped_at: string;
+  url?: string;
+  engagement_metrics?: Record<string, any>;
+  nlp_keywords: string[];
+  nlp_sentiment_score: number;
+  urgency_score: number;
   created_at: string;
   updated_at: string;
 }

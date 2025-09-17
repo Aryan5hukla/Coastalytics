@@ -16,13 +16,17 @@ import {
   Layers
 } from 'lucide-react';
 
-export default function ReportsMapView() {
+interface ReportsMapViewProps {
+  initialStatusFilter?: string;
+}
+
+export default function ReportsMapView({ initialStatusFilter }: ReportsMapViewProps) {
   const [reports, setReports] = useState<Report[]>([]);
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState(initialStatusFilter || 'all');
   const [hazardFilter, setHazardFilter] = useState('all');
   const [mapView, setMapView] = useState(true);
 

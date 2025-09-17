@@ -12,7 +12,11 @@ import {
   MapPin
 } from 'lucide-react';
 
-export default function DashboardOverview() {
+interface DashboardOverviewProps {
+  onNavigate?: (view: string) => void;
+}
+
+export default function DashboardOverview({ onNavigate }: DashboardOverviewProps) {
   const [stats, setStats] = useState({
     totalReports: 0,
     verifiedReports: 0,
@@ -44,7 +48,7 @@ export default function DashboardOverview() {
         supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending_verification'),
         supabase.from('alerts').select('id', { count: 'exact', head: true }).eq('status', 'active'),
         supabase.from('predicted_hazards').select('id', { count: 'exact', head: true }).eq('is_active', true),
-        supabase.from('social_media_posts').select('id', { count: 'exact', head: true }),
+        supabase.from('social_mentions').select('id', { count: 'exact', head: true }),
         supabase.from('resources').select('id', { count: 'exact', head: true }).eq('is_active', true),
       ]);
 
@@ -87,32 +91,47 @@ export default function DashboardOverview() {
   return (
     <div className="p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Total Reports"
-          value={stats.totalReports}
-          icon={AlertTriangle}
-          color="blue"
-          change="+12% from last week"
-          changeType="positive"
-        />
+        <div 
+          onClick={() => onNavigate?.('reports-map')}
+          className="cursor-pointer"
+        >
+          <StatsCard
+            title="Total Reports"
+            value={stats.totalReports}
+            icon={AlertTriangle}
+            color="blue"
+            change="+12% from last week"
+            changeType="positive"
+          />
+        </div>
         
-        <StatsCard
-          title="Verified Reports"
-          value={stats.verifiedReports}
-          icon={CheckCircle}
-          color="green"
-          change="+8% verification rate"
-          changeType="positive"
-        />
+        <div 
+          onClick={() => onNavigate?.('reports-map?status=verified')}
+          className="cursor-pointer"
+        >
+          <StatsCard
+            title="Verified Reports"
+            value={stats.verifiedReports}
+            icon={CheckCircle}
+            color="green"
+            change="+8% verification rate"
+            changeType="positive"
+          />
+        </div>
         
-        <StatsCard
-          title="Pending Review"
-          value={stats.pendingReports}
-          icon={Clock}
-          color="yellow"
-          change="Requires attention"
-          changeType="neutral"
-        />
+        <div 
+          onClick={() => onNavigate?.('reports-map?status=pending')}
+          className="cursor-pointer"
+        >
+          <StatsCard
+            title="Pending Reports"
+            value={stats.pendingReports}
+            icon={Clock}
+            color="yellow"
+            change="Requires attention"
+            changeType="neutral"
+          />
+        </div>
         
         <StatsCard
           title="Active Alerts"
@@ -123,23 +142,33 @@ export default function DashboardOverview() {
           changeType="neutral"
         />
         
-        <StatsCard
-          title="AI Predictions"
-          value={stats.predictedHazards}
-          icon={Activity}
-          color="purple"
-          change="Active forecasts"
-          changeType="neutral"
-        />
+        <div 
+          onClick={() => onNavigate?.('predictions')}
+          className="cursor-pointer"
+        >
+          <StatsCard
+            title="AI Predictions"
+            value={stats.predictedHazards}
+            icon={Activity}
+            color="purple"
+            change="Click to view details"
+            changeType="neutral"
+          />
+        </div>
         
-        <StatsCard
-          title="Social Media Mentions"
-          value={stats.socialMediaPosts}
-          icon={Users}
-          color="blue"
-          change="+24% today"
-          changeType="positive"
-        />
+        <div 
+          onClick={() => onNavigate?.('social')}
+          className="cursor-pointer"
+        >
+          <StatsCard
+            title="Social Media Mentions"
+            value={stats.socialMediaPosts}
+            icon={Users}
+            color="blue"
+            change="Click to view details"
+            changeType="neutral"
+          />
+        </div>
         
         <StatsCard
           title="Emergency Resources"
@@ -159,6 +188,7 @@ export default function DashboardOverview() {
           changeType="positive"
         />
       </div>
+
 
       {/* Recent Activity */}
       <div className="mt-8">

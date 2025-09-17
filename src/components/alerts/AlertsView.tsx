@@ -10,7 +10,9 @@ import {
   Clock,
   Users,
   MapPin,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw,
+  Zap
 } from 'lucide-react';
 
 export default function AlertsView() {
@@ -36,6 +38,25 @@ export default function AlertsView() {
 
   useEffect(() => {
     fetchAlerts();
+    
+    // Set up real-time subscription for alerts
+    const subscription = supabase
+      .channel('alerts_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'alerts' 
+        }, 
+        () => {
+          fetchAlerts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchAlerts = async () => {
@@ -138,16 +159,54 @@ export default function AlertsView() {
           </p>
         </div>
         
-        {profile?.role === 'official' && (
+        <div className="flex items-center space-x-3">
           <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+            onClick={fetchAlerts}
+            className="bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+            title="Refresh alerts"
           >
-            <Plus className="w-5 h-5" />
-            <span>Create Alert</span>
+            <RefreshCw className="w-4 h-4" />
+            <span>Refresh</span>
           </button>
-        )}
+          
+          {profile?.role === 'official' && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Create Alert</span>
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Active Alerts Banner */}
+      {alerts.filter(alert => alert.status === 'active').length > 0 && (
+        <div className="mb-6">
+          <div className="bg-gradient-to-r from-red-900/50 to-orange-900/50 border border-red-500/30 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0">
+                <Zap className="w-6 h-6 text-red-400 animate-pulse" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-red-300">
+                  {alerts.filter(alert => alert.status === 'active').length} Active Alert(s)
+                </h3>
+                <p className="text-red-200 text-sm">
+                  Critical alerts are currently active and being broadcast to affected populations.
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-red-300">
+                  {alerts.filter(alert => alert.status === 'active').length}
+                </div>
+                <div className="text-xs text-red-400">LIVE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Active Alerts Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">

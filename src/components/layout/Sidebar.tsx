@@ -29,6 +29,8 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
     { id: 'report-form', label: 'Report Hazard', icon: PlusCircle },
     { id: 'reports-map', label: 'View Reports', icon: MapPin },
     { id: 'map', label: 'Interactive Map', icon: Map },
+    { id: 'predictions', label: 'AI Predictions', icon: Activity },
+    { id: 'social', label: 'Social Media', icon: Users },
   ];
 
   const analystMenuItems = [
@@ -69,9 +71,9 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
   };
 
   return (
-    <div className="w-64 bg-slate-800 min-h-screen flex flex-col border-r border-slate-700">
+    <div className="w-64 bg-slate-800 h-screen flex flex-col border-r border-slate-700 fixed left-0 top-0">
       {/* Header */}
-      <div className="p-6 border-b border-slate-700">
+      <div className="flex-shrink-0 p-6 border-b border-slate-700">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
@@ -85,8 +87,8 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6">
+      {/* Navigation - Scrollable */}
+      <nav className="flex-1 overflow-y-auto px-4 py-6">
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -111,8 +113,8 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* User Info & Settings */}
-      <div className="p-4 border-t border-slate-700">
+      {/* User Info & Settings - Always visible at bottom */}
+      <div className="flex-shrink-0 p-4 border-t border-slate-700 bg-slate-800">
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center">
             <User className="w-4 h-4 text-slate-300" />

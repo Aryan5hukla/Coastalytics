@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Permission Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #99d3ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Location Permission Test</h1>
+        <p>This page tests the improved location permission handling for the report hazard feature.</p>
+        
+        <div>
+            <button onclick="testGetLocation()">Get Location</button>
+            <button onclick="checkPermissionState()">Check Permission State</button>
+            <button onclick="resetAndTryAgain()">Reset & Try Again</button>
+        </div>
+        
+        <div id="status"></div>
+        <div id="location-info"></div>
+        
+        <h3>Test Scenarios:</h3>
+        <ol>
+            <li><strong>First time:</strong> Click "Get Location" - should prompt for permission</li>
+            <li><strong>Allow permission:</strong> Should get location successfully</li>
+            <li><strong>Deny permission:</strong> Should show specific error message</li>
+            <li><strong>After denying:</strong> Click "Reset & Try Again" - should prompt again</li>
+        </ol>
+        
+        <h3>Browser Instructions:</h3>
+        <div id="browser-instructions"></div>
+    </div>
+
+    <script>
+        let permissionState = 'unknown';
+        let permissionDenied = false;
+
+        // Check permission state
+        async function checkPermissionState() {
+            if (!navigator.permissions) {
+                updateStatus('Permission API not supported', 'info');
+                return 'unknown';
+            }
+            
+            try {
+                const permission = await navigator.permissions.query({ name: 'geolocation' });
+                permissionState = permission.state;
+                updateStatus(`Permission state: ${permission.state}`, 'info');
+                return permission.state;
+            } catch (error) {
+                updateStatus('Permission query failed', 'error');
+                return 'unknown';
+            }
+        }
+
+        // Get location with improved error handling
+        async function testGetLocation() {
+            updateStatus('Getting location...', 'info');
+            clearLocationInfo();
+            
+            if (!navigator.geolocation) {
+                updateStatus('Geolocation not supported', 'error');
+                return;
+            }
+
+            // Check permission state first
+            const currentPermission = await checkPermissionState();
+            
+            if (currentPermission === 'denied') {
+                permissionDenied = true;
+                updateStatus('Location access was previously denied. Please reset permissions and try again.', 'error');
+                showBrowserInstructions();
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    updateStatus('Location obtained successfully!', 'success');
+                    updateLocationInfo({
+                        latitude,
+                        longitude,
+                        accuracy,
+                        timestamp: new Date().toLocaleString()
+                    });
+                    permissionDenied = false;
+                },
+                (error) => {
+                    let errorMessage = 'Unable to get location';
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            permissionDenied = true;
+                            permissionState = 'denied';
+                            errorMessage = 'Location access was denied. Please enable location permissions and try again.';
+                            showBrowserInstructions();
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Location information is unavailable. Please ensure GPS is enabled.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Location request timed out. Please try again.';
+                            break;
+                    }
+                    updateStatus(errorMessage, 'error');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000
+                }
+            );
+        }
+
+        // Reset and try again
+        function resetAndTryAgain() {
+            permissionDenied = false;
+            permissionState = 'unknown';
+            updateStatus('Reset completed. Trying again...', 'info');
+            clearLocationInfo();
+            
+            setTimeout(() => {
+                testGetLocation();
+            }, 100);
+        }
+
+        // Update status display
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        // Update location info display
+        function updateLocationInfo(location) {
+            const locationDiv = document.getElementById('location-info');
+            locationDiv.innerHTML = `
+                <div class="status success">
+                    <h4>📍 Location Details:</h4>
+                    <p><strong>Latitude:</strong> ${location.latitude.toFixed(6)}</p>
+                    <p><strong>Longitude:</strong> ${location.longitude.toFixed(6)}</p>
+                    <p><strong>Accuracy:</strong> ±${Math.round(location.accuracy)} meters</p>
+                    <p><strong>Time:</strong> ${location.timestamp}</p>
+                </div>
+            `;
+        }
+
+        // Clear location info
+        function clearLocationInfo() {
+            document.getElementById('location-info').innerHTML = '';
+        }
+
+        // Show browser-specific instructions
+        function showBrowserInstructions() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            let instructions = '';
+            
+            if (userAgent.includes('chrome')) {
+                instructions = '🔒 <strong>Chrome:</strong> Click the lock icon in address bar → Location → Allow';
+            } else if (userAgent.includes('firefox')) {
+                instructions = '🛡️ <strong>Firefox:</strong> Click the shield icon → Allow location access';
+            } else if (userAgent.includes('safari')) {
+                instructions = '🧭 <strong>Safari:</strong> Safari menu → Settings for This Website → Location → Allow';
+            } else if (userAgent.includes('edge')) {
+                instructions = '🔒 <strong>Edge:</strong> Click lock icon → Location permissions → Allow';
+            } else {
+                instructions = '📍 Look for location icon in address bar and click to allow access';
+            }
+            
+            document.getElementById('browser-instructions').innerHTML = `
+                <div class="status info">
+                    <h4>How to Enable Location:</h4>
+                    <p>${instructions}</p>
+                    <p><small>After changing settings, click "Reset & Try Again" above.</small></p>
+                </div>
+            `;
+        }
+
+        // Initialize
+        window.onload = function() {
+            checkPermissionState();
+            
+            // Listen for permission changes if supported
+            if (navigator.permissions) {
+                navigator.permissions.query({ name: 'geolocation' })
+                    .then(permission => {
+                        permission.addEventListener('change', () => {
+                            permissionState = permission.state;
+                            updateStatus(`Permission changed to: ${permission.state}`, 'info');
+                            
+                            if (permission.state === 'granted' && permissionDenied) {
+                                updateStatus('Permission granted! You can now get location.', 'success');
+                                permissionDenied = false;
+                            }
+                        });
+                    })
+                    .catch(err => console.log('Permission monitoring not supported:', err));
+            }
+        };
+    </script>
+</body>
+</html>

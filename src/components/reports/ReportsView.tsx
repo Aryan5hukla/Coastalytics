@@ -14,13 +14,17 @@ import {
   ImageIcon
 } from 'lucide-react';
 
-export default function ReportsView() {
+interface ReportsViewProps {
+  initialStatusFilter?: string;
+}
+
+export default function ReportsView({ initialStatusFilter }: ReportsViewProps) {
   const { profile } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState(initialStatusFilter || 'all');
   const [hazardFilter, setHazardFilter] = useState('all');
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
