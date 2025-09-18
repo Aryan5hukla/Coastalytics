@@ -49,6 +49,22 @@ export function useAuth() {
 
       if (error) {
         console.error('Error fetching user profile:', error);
+        console.error('Error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          userId: user.id,
+          userEmail: user.email
+        });
+        
+        // If profile doesn't exist (PGRST116), try to create it
+        if (error.code === 'PGRST116') {
+          console.log('Profile not found, attempting to create one...');
+          await createUserProfile(user);
+          return;
+        }
+        
         setAuthState({ user, profile: null, loading: false });
         return;
       }
@@ -56,6 +72,35 @@ export function useAuth() {
       setAuthState({ user, profile, loading: false });
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      setAuthState({ user, profile: null, loading: false });
+    }
+  };
+
+  const createUserProfile = async (user: User) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: user.id,
+          email: user.email || '',
+          full_name: user.user_metadata?.full_name || '',
+          role: user.user_metadata?.role || 'citizen',
+          organization: user.user_metadata?.organization || '',
+          phone: user.user_metadata?.phone || ''
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating user profile:', error);
+        setAuthState({ user, profile: null, loading: false });
+        return;
+      }
+
+      console.log('User profile created successfully:', profile);
+      setAuthState({ user, profile, loading: false });
+    } catch (error) {
+      console.error('Error creating user profile:', error);
       setAuthState({ user, profile: null, loading: false });
     }
   };

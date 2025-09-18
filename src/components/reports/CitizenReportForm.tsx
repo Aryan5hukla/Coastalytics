@@ -40,12 +40,28 @@ export default function CitizenReportForm() {
   const [location, setLocation] = useState<Location | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState('');
+  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied' | 'unknown'>('unknown');
   
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [mediaUploading, setMediaUploading] = useState(false);
   
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  
+  // Check if Supabase is configured
+  const [dbConfigured, setDbConfigured] = useState(true);
+  
+  useEffect(() => {
+    try {
+      // Test if Supabase environment variables are available
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      setDbConfigured(!!(supabaseUrl && supabaseAnonKey));
+    } catch (error) {
+      setDbConfigured(false);
+    }
+  }, []);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -59,10 +75,27 @@ export default function CitizenReportForm() {
     { value: 'other', label: 'Other Ocean Hazard', icon: '⚠️' }
   ];
 
-  // Get user's current location
-  const getCurrentLocation = () => {
+  // Check current permission state
+  const checkPermissionState = async () => {
+    if (!navigator.permissions) {
+      return 'unknown';
+    }
+    
+    try {
+      const permission = await navigator.permissions.query({ name: 'geolocation' });
+      setPermissionState(permission.state);
+      return permission.state;
+    } catch (error) {
+      console.log('Permission query not supported:', error);
+      return 'unknown';
+    }
+  };
+
+  // Get user's current location with improved permission handling
+  const getCurrentLocation = async () => {
     setLocationLoading(true);
     setLocationError('');
+    setPermissionDenied(false);
     
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported by this browser');
@@ -70,6 +103,8 @@ export default function CitizenReportForm() {
       return;
     }
 
+    // Always attempt to get location - let the browser handle permission prompts
+    // This ensures that clicking "Get Location" always triggers the permission popup
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude, accuracy } = position.coords;
@@ -119,13 +154,15 @@ export default function CitizenReportForm() {
         let errorMessage = 'Unable to get location';
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = 'Location access denied. Please enable location permissions.';
+            setPermissionDenied(true);
+            setPermissionState('denied');
+            errorMessage = 'Location access was denied. Click "Get Location" again to re-request permission, or enable location in your browser settings.';
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Location information is unavailable.';
+            errorMessage = 'Location information is unavailable. Please ensure GPS is enabled.';
             break;
           case error.TIMEOUT:
-            errorMessage = 'Location request timed out.';
+            errorMessage = 'Location request timed out. Please try again.';
             break;
         }
         setLocationError(errorMessage);
@@ -134,7 +171,94 @@ export default function CitizenReportForm() {
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 300000 // 5 minutes
+        maximumAge: 0 // Force fresh location request to trigger permission prompt
+      }
+    );
+  };
+
+
+  // Reset permission state and try again - always attempt to get location
+  const resetAndTryAgain = async () => {
+    setPermissionDenied(false);
+    setLocationError('');
+    setPermissionState('unknown');
+    setLocationLoading(true);
+    
+    // Direct geolocation call within user gesture context to ensure popup shows
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by this browser');
+      setLocationLoading(false);
+      return;
+    }
+
+    // Direct call to geolocation API without any state checks
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        
+        try {
+          let address = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          
+          // Only try geocoding if we have a valid API key
+          const apiKey = import.meta.env.VITE_OPENCAGE_API_KEY;
+          if (apiKey && apiKey !== 'demo') {
+            try {
+              const response = await fetch(
+                `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`
+              );
+              
+              if (response.ok) {
+                const data = await response.json();
+                if (data.results && data.results[0]) {
+                  address = data.results[0].formatted;
+                }
+              }
+            } catch (geocodeError) {
+              console.log('Geocoding failed, using coordinates:', geocodeError);
+            }
+          }
+          
+          setLocation({
+            latitude,
+            longitude,
+            accuracy,
+            address
+          });
+        } catch (error) {
+          setLocation({
+            latitude,
+            longitude,
+            accuracy,
+            address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+          });
+        }
+        
+        setLocationLoading(false);
+        setLocationError('');
+        setPermissionDenied(false);
+      },
+      (error) => {
+        let errorMessage = 'Unable to get location';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setPermissionDenied(true);
+            setPermissionState('denied');
+            errorMessage = 'Location access was denied. Click "Get Location Again" to re-request permission.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information is unavailable. Please ensure GPS is enabled.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out. Please try again.';
+            break;
+        }
+        setLocationError(errorMessage);
+        setLocationLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0 // Force fresh location request
       }
     );
   };
@@ -210,12 +334,29 @@ export default function CitizenReportForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Strict location validation
     if (!location) {
-      setLocationError('Please get your current location first');
+      setLocationError('Location is required to submit a hazard report. Please allow location access and try again.');
+      alert('Location is mandatory for hazard reports. Please enable location access and get your current location before submitting.');
+      return;
+    }
+    
+    // Validate coordinate quality
+    if (!location.latitude || !location.longitude) {
+      setLocationError('Invalid coordinates detected. Please get your location again.');
+      alert('Invalid location coordinates. Please refresh your location and try again.');
+      return;
+    }
+    
+    // Check if coordinates are reasonable (not 0,0 or clearly invalid)
+    if (Math.abs(location.latitude) < 0.001 && Math.abs(location.longitude) < 0.001) {
+      setLocationError('Invalid location detected (0,0). Please get a valid location.');
+      alert('Invalid location detected. Please ensure GPS is enabled and try getting your location again.');
       return;
     }
     
     if (!formData.title.trim() || !formData.description.trim()) {
+      alert('Please fill in all required fields (Title and Description).');
       return;
     }
     
@@ -278,15 +419,55 @@ export default function CitizenReportForm() {
       
     } catch (error: any) {
       console.error('Error submitting report:', error);
-      alert(`Error submitting report: ${error.message || 'Please try again.'}`);
+      
+      let errorMessage = 'Please try again.';
+      if (error.message?.includes('Missing Supabase environment variables')) {
+        errorMessage = 'Database configuration is missing. Please contact the administrator to set up the Supabase environment variables.';
+      } else if (error.message?.includes('fetch')) {
+        errorMessage = 'Unable to connect to the database. Please check your internet connection and try again.';
+      } else if (error.message?.includes('JWT')) {
+        errorMessage = 'Authentication error. Please try signing out and signing back in.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(`Error submitting report: ${errorMessage}`);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Auto-get location on component mount
+  // Check permission state and auto-get location on component mount
   useEffect(() => {
-    getCurrentLocation();
+    const initializeLocation = async () => {
+      // Check current permission state
+      const currentPermission = await checkPermissionState();
+      
+      // Only auto-request location if permission is already granted
+      // This prevents unwanted permission popups on page load
+      if (currentPermission === 'granted') {
+        getCurrentLocation();
+      }
+    };
+    
+    initializeLocation();
+    
+    // Listen for permission changes if supported
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: 'geolocation' })
+        .then(permission => {
+          permission.addEventListener('change', () => {
+            setPermissionState(permission.state);
+            if (permission.state === 'granted' && !location) {
+              getCurrentLocation();
+            } else if (permission.state === 'denied') {
+              setPermissionDenied(true);
+              setLocationError('Location access was denied. Click "Get Location Again" to re-request permission.');
+            }
+          });
+        })
+        .catch(err => console.log('Permission monitoring not supported:', err));
+    }
   }, []);
 
   if (submitted) {
@@ -317,16 +498,35 @@ export default function CitizenReportForm() {
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Database Configuration Warning */}
+            {!dbConfigured && (
+              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6">
+                <div className="flex items-start">
+                  <AlertTriangle className="w-5 h-5 text-red-400 mr-2 mt-0.5" />
+                  <div>
+                    <p className="text-red-300 font-medium">Database Not Configured</p>
+                    <p className="text-red-200 text-sm">
+                      The application cannot connect to the database. Please contact the administrator to configure the Supabase environment variables.
+                    </p>
+                    <p className="text-red-200/70 text-xs mt-2">
+                      Required: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Location Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white flex items-center">
-                  <MapPin className="w-5 h-5 mr-2 text-blue-400" />
-                  Location
+                  <MapPin className="w-5 h-5 mr-2 text-red-400" />
+                  Location *
+                  <span className="text-red-400 text-sm ml-2">(Required)</span>
                 </h3>
                 <button
                   type="button"
-                  onClick={getCurrentLocation}
+                  onClick={resetAndTryAgain}
                   disabled={locationLoading}
                   className="flex items-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors disabled:opacity-50"
                 >
@@ -335,7 +535,7 @@ export default function CitizenReportForm() {
                   ) : (
                     <Navigation className="w-4 h-4 mr-2" />
                   )}
-                  Get Location
+                  {location ? 'Refresh Location' : permissionDenied ? 'Get Location Again' : 'Get Location'}
                 </button>
               </div>
 
@@ -357,19 +557,49 @@ export default function CitizenReportForm() {
                 <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
                   <div className="flex items-start">
                     <AlertTriangle className="w-5 h-5 text-red-400 mr-2 mt-0.5" />
-                    <div>
+                    <div className="flex-1">
                       <p className="text-red-300 font-medium">Location Error</p>
-                      <p className="text-red-200 text-sm">{locationError}</p>
+                      <p className="text-red-200 text-sm mb-3">{locationError}</p>
+                      
+                      {permissionDenied ? (
+                        <div className="space-y-2">
+                          <button
+                            type="button"
+                            onClick={resetAndTryAgain}
+                            disabled={locationLoading}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors disabled:opacity-50"
+                          >
+                            {locationLoading ? 'Requesting...' : 'Get Location Again'}
+                          </button>
+                          <p className="text-red-200/60 text-xs">
+                            💡 Click to request location permission again
+                          </p>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={resetAndTryAgain}
+                          disabled={locationLoading}
+                          className="mt-2 text-red-300 hover:text-red-200 text-sm underline disabled:opacity-50"
+                        >
+                          {locationLoading ? 'Getting location...' : 'Try Again'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4">
+                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
                   <div className="flex items-start">
-                    <AlertTriangle className="w-5 h-5 text-yellow-400 mr-2 mt-0.5" />
+                    <AlertTriangle className="w-5 h-5 text-red-400 mr-2 mt-0.5" />
                     <div>
-                      <p className="text-yellow-300 font-medium">Location Required</p>
-                      <p className="text-yellow-200 text-sm">Please allow location access to geotag your report</p>
+                      <p className="text-red-300 font-medium">Location Required</p>
+                      <p className="text-red-200 text-sm">
+                        Location coordinates are mandatory for hazard reports. Please click "Get Location" and allow location access to proceed.
+                      </p>
+                      <p className="text-red-200/70 text-xs mt-1">
+                        Your exact location helps emergency responders and authorities take appropriate action.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -541,10 +771,20 @@ export default function CitizenReportForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={submitting || !location || mediaUploading}
+              disabled={submitting || !location || mediaUploading || !dbConfigured}
               className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              {submitting ? (
+              {!dbConfigured ? (
+                <>
+                  <AlertTriangle className="w-5 h-5 mr-2" />
+                  Database Not Configured
+                </>
+              ) : !location ? (
+                <>
+                  <MapPin className="w-5 h-5 mr-2" />
+                  Location Required to Submit
+                </>
+              ) : submitting ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Submitting Report...
