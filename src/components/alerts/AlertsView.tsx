@@ -11,7 +11,6 @@ import {
   Users,
   MapPin,
   AlertTriangle,
-  RefreshCw,
   Zap
 } from 'lucide-react';
 
@@ -160,14 +159,6 @@ export default function AlertsView() {
         </div>
         
         <div className="flex items-center space-x-3">
-          <button
-            onClick={fetchAlerts}
-            className="bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-            title="Refresh alerts"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>Refresh</span>
-          </button>
           
           {profile?.role === 'official' && (
             <button

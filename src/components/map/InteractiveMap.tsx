@@ -5,7 +5,6 @@ import { supabase, Report, Alert, PredictedHazard, Resource } from '../../lib/su
 import { 
   Layers, 
   Filter, 
-  RotateCcw, 
   ZoomIn, 
   ZoomOut,
   MapPin,
@@ -325,13 +324,6 @@ export default function InteractiveMap() {
               </h3>
               
               <div className="flex items-center space-x-2">
-                <button
-                  onClick={fetchMapData}
-                  className="px-3 py-1 bg-sky-500 hover:bg-sky-600 text-white text-sm rounded-md transition-colors flex items-center space-x-1"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>Refresh</span>
-                </button>
               </div>
             </div>
             

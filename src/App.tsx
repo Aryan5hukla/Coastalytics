@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { SettingsProvider } from './contexts/SettingsContext';
@@ -25,6 +25,9 @@ function AppContent() {
   const [authView, setAuthView] = useState<'landing' | 'login' | 'signup'>('landing');
   const [isInitialized, setIsInitialized] = useState(false);
   const [viewParams, setViewParams] = useState<string>('');
+  
+  // Refs for components to handle refresh
+  const componentRefs = useRef<{ [key: string]: any }>({});
 
   // Save activeView and viewParams to localStorage whenever they change (but only after initialization)
   useEffect(() => {
@@ -48,6 +51,12 @@ function AppContent() {
       setActiveView(viewWithParams);
       setViewParams('');
     }
+  };
+
+  // Centralized refresh handler
+  const handleRefresh = () => {
+    // Simply reload the page to refresh the current view
+    window.location.reload();
   };
 
   // Initialize activeView from localStorage or set default based on user role
@@ -238,6 +247,7 @@ function AppContent() {
         <Header 
           title={getViewTitle(activeView)}
           subtitle={getViewSubtitle(activeView)}
+          onRefresh={handleRefresh}
         />
         
         <main className="flex-1 overflow-y-auto">

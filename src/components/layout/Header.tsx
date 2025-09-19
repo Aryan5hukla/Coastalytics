@@ -5,9 +5,10 @@ import { Bell, Search, RefreshCw } from 'lucide-react';
 interface HeaderProps {
   title: string;
   subtitle?: string;
+  onRefresh?: () => void;
 }
 
-export default function Header({ title, subtitle }: HeaderProps) {
+export default function Header({ title, subtitle, onRefresh }: HeaderProps) {
   const { profile } = useAuth();
   const currentTime = new Date().toLocaleString();
 
@@ -33,7 +34,11 @@ export default function Header({ title, subtitle }: HeaderProps) {
           </div>
 
           {/* Refresh Button */}
-          <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-colors">
+          <button 
+            onClick={onRefresh}
+            className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-colors"
+            title="Refresh current page"
+          >
             <RefreshCw className="w-5 h-5" />
           </button>
 
