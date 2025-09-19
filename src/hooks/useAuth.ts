@@ -148,10 +148,16 @@ export function useAuth() {
     return data;
   };
 
+  const refreshProfile = async () => {
+    if (!authState.user) return;
+    await fetchUserProfile(authState.user);
+  };
+
   return {
     ...authState,
     signIn,
     signOut,
     signUp,
+    refreshProfile,
   };
 }

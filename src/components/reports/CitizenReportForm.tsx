@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../contexts/LanguageContext';
 import {
   MapPin,
   Camera,
@@ -30,6 +31,7 @@ interface MediaFile {
 
 export default function CitizenReportForm() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -67,12 +69,12 @@ export default function CitizenReportForm() {
   const videoInputRef = useRef<HTMLInputElement>(null);
 
   const hazardTypes = [
-    { value: 'cyclone', label: 'Cyclone/Hurricane', icon: '🌀' },
-    { value: 'tsunami', label: 'Tsunami', icon: '🌊' },
-    { value: 'storm_surge', label: 'Storm Surge', icon: '⚡' },
-    { value: 'coastal_erosion', label: 'Coastal Erosion', icon: '🏖️' },
-    { value: 'flooding', label: 'Flooding', icon: '💧' },
-    { value: 'other', label: 'Other Ocean Hazard', icon: '⚠️' }
+    { value: 'cyclone', label: t('hazard.cyclone'), icon: '🌀' },
+    { value: 'tsunami', label: t('hazard.tsunami'), icon: '🌊' },
+    { value: 'storm_surge', label: t('hazard.stormSurge'), icon: '⚡' },
+    { value: 'coastal_erosion', label: t('hazard.coastalErosion'), icon: '🏖️' },
+    { value: 'flooding', label: t('hazard.flooding'), icon: '💧' },
+    { value: 'other', label: t('hazard.other'), icon: '⚠️' }
   ];
 
   // Check current permission state
@@ -493,8 +495,8 @@ export default function CitizenReportForm() {
         <div className="bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-6">
-            <h1 className="text-2xl font-bold text-white mb-2">Report Ocean Hazard</h1>
-            <p className="text-blue-100">Help keep our coastal communities safe by reporting hazards and unusual ocean activities</p>
+            <h1 className="text-2xl font-bold text-white mb-2">{t('reportForm.title')}</h1>
+            <p className="text-blue-100">{t('reportForm.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -521,7 +523,7 @@ export default function CitizenReportForm() {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white flex items-center">
                   <MapPin className="w-5 h-5 mr-2 text-red-400" />
-                  Location *
+{t('reportForm.location')} *
                   <span className="text-red-400 text-sm ml-2">(Required)</span>
                 </h3>
                 <button
@@ -609,7 +611,7 @@ export default function CitizenReportForm() {
             {/* Hazard Type */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-300">
-                Hazard Type *
+                {t('reportForm.hazardType')} *
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {hazardTypes.map((type) => (
@@ -635,7 +637,7 @@ export default function CitizenReportForm() {
             {/* Title */}
             <div className="space-y-2">
               <label htmlFor="title" className="block text-sm font-medium text-slate-300">
-                Report Title *
+{t('reportForm.hazardTitle')} *
               </label>
               <input
                 id="title"
@@ -651,7 +653,7 @@ export default function CitizenReportForm() {
             {/* Description */}
             <div className="space-y-2">
               <label htmlFor="description" className="block text-sm font-medium text-slate-300">
-                Detailed Description *
+{t('reportForm.description')} *
               </label>
               <textarea
                 id="description"
@@ -667,7 +669,7 @@ export default function CitizenReportForm() {
             {/* Urgency Level */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-300">
-                Urgency Level: {formData.urgencyLevel}/5
+{t('reportForm.urgencyLevel')}: {formData.urgencyLevel}/5
               </label>
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-slate-400">Low</span>
