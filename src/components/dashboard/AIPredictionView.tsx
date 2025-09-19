@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Brain, TrendingUp, Clock, MapPin, AlertTriangle, RefreshCw, Play, Pause, Zap } from 'lucide-react';
+import { Brain, TrendingUp, Clock, MapPin, AlertTriangle, Play, Pause, Zap } from 'lucide-react';
 
 interface PredictedHazard {
   id: string;
@@ -244,13 +244,6 @@ const AIPredictionView: React.FC = () => {
               <span className="text-xs">
                 {triggeringPrediction ? 'Analyzing...' : 'Run AI Analysis'}
               </span>
-            </button>
-            <button 
-              onClick={fetchPredictions}
-              className="p-1 hover:bg-slate-700 rounded transition-colors"
-              title="Refresh predictions"
-            >
-              <RefreshCw size={16} className="text-slate-400" />
             </button>
           </div>
         </div>

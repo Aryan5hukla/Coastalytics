@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
 import { 
-  MessageSquare, Clock, ExternalLink, AlertTriangle, Filter, 
-  TrendingUp, Brain, Heart, Zap, Search, RefreshCw,
+  MessageSquare, Clock, ExternalLink, AlertTriangle,
+  TrendingUp, Heart, Zap, Search,
   ChevronDown, ChevronUp, Eye, BarChart3, Settings,
-  MapPin, Users, Calendar, Activity, Image
+  MapPin, Users, Calendar, Image
 } from 'lucide-react';
 
 interface SocialMention {
@@ -35,14 +35,6 @@ interface SocialMention {
   };
 }
 
-interface FilterState {
-  urgencyMin: number;
-  confidenceMin: number;
-  sources: string[];
-  keywords: string;
-  sentiment: 'all' | 'positive' | 'negative' | 'neutral';
-  timeRange: 'all' | '1h' | '6h' | '24h' | '7d';
-}
 
 interface TrendingKeyword {
   keyword: string;
@@ -131,88 +123,17 @@ const SocialMentionsFeed: React.FC = () => {
   const [mentions, setMentions] = useState<SocialMention[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [trendingKeywords, setTrendingKeywords] = useState<TrendingKeyword[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [usingSampleData, setUsingSampleData] = useState(false);
 
-  const [filters, setFilters] = useState<FilterState>({
-    urgencyMin: 1,
-    confidenceMin: 0,
-    sources: [],
-    keywords: '',
-    sentiment: 'all',
-    timeRange: '24h'
-  });
 
-  // Get unique sources from mentions
-  const availableSources = useMemo(() => {
-    return [...new Set(mentions.map(m => m.source))];
-  }, [mentions]);
 
-  // Filter mentions based on current filters
-  const filteredMentions = useMemo(() => {
-    let filtered = mentions;
-
-    // Urgency filter
-    if (filters.urgencyMin > 1) {
-      filtered = filtered.filter(m => m.urgency_score >= filters.urgencyMin);
-    }
-
-    // Confidence filter
-    if (filters.confidenceMin > 0) {
-      filtered = filtered.filter(m => (m.confidence_score || 0) >= filters.confidenceMin);
-    }
-
-    // Source filter
-    if (filters.sources.length > 0) {
-      filtered = filtered.filter(m => filters.sources.includes(m.source));
-    }
-
-    // Keyword filter
-    if (filters.keywords.trim()) {
-      const searchTerms = filters.keywords.toLowerCase().split(' ');
-      filtered = filtered.filter(m => 
-        searchTerms.some(term => 
-          m.content.toLowerCase().includes(term) ||
-          m.nlp_keywords.some(k => k.toLowerCase().includes(term)) ||
-          (m.hashtags || []).some(h => h.toLowerCase().includes(term))
-        )
-      );
-    }
-
-    // Sentiment filter
-    if (filters.sentiment !== 'all') {
-      filtered = filtered.filter(m => {
-        const sentiment = m.nlp_sentiment_score || 0;
-        switch (filters.sentiment) {
-          case 'positive': return sentiment > 0.1;
-          case 'negative': return sentiment < -0.1;
-          case 'neutral': return sentiment >= -0.1 && sentiment <= 0.1;
-          default: return true;
-        }
-      });
-    }
-
-    // Time range filter
-    if (filters.timeRange !== 'all') {
-      const now = new Date();
-      const timeRanges = {
-        '1h': 1 * 60 * 60 * 1000,
-        '6h': 6 * 60 * 60 * 1000,
-        '24h': 24 * 60 * 60 * 1000,
-        '7d': 7 * 24 * 60 * 60 * 1000
-      };
-      
-      const cutoff = new Date(now.getTime() - timeRanges[filters.timeRange]);
-      filtered = filtered.filter(m => 
-        new Date(m.posted_at || m.scraped_at) >= cutoff
-      );
-    }
-
-    return filtered.sort((a, b) => {
+  // Sort mentions by urgency, confidence, and time
+  const sortedMentions = useMemo(() => {
+    return mentions.sort((a, b) => {
       // Sort by urgency first, then by confidence, then by time
       if (a.urgency_score !== b.urgency_score) {
         return b.urgency_score - a.urgency_score;
@@ -223,19 +144,20 @@ const SocialMentionsFeed: React.FC = () => {
       return new Date(b.posted_at || b.scraped_at).getTime() - 
              new Date(a.posted_at || a.scraped_at).getTime();
     });
-  }, [mentions, filters]);
+  }, [mentions]);
 
   // Analytics data
   const analytics = useMemo(() => {
-    const total = filteredMentions.length;
-    const highUrgency = filteredMentions.filter(m => m.urgency_score >= 4).length;
-    const highConfidence = filteredMentions.filter(m => (m.confidence_score || 0) > 0.7).length;
+    const total = sortedMentions.length;
+    const highUrgency = sortedMentions.filter(m => m.urgency_score >= 4).length;
+    const highConfidence = sortedMentions.filter(m => (m.confidence_score || 0) > 0.7).length;
     const avgSentiment = total > 0 ? 
-      filteredMentions.reduce((sum, m) => sum + (m.nlp_sentiment_score || 0), 0) / total : 0;
+      sortedMentions.reduce((sum, m) => sum + (m.nlp_sentiment_score || 0), 0) / total : 0;
     
+    const availableSources = [...new Set(sortedMentions.map(m => m.source))];
     const sourceBreakdown = availableSources.map(source => ({
       source,
-      count: filteredMentions.filter(m => m.source === source).length
+      count: sortedMentions.filter(m => m.source === source).length
     }));
 
     return {
@@ -245,7 +167,7 @@ const SocialMentionsFeed: React.FC = () => {
       avgSentiment,
       sourceBreakdown
     };
-  }, [filteredMentions, availableSources]);
+  }, [sortedMentions]);
 
   useEffect(() => {
     fetchMentions();
@@ -512,14 +434,9 @@ const SocialMentionsFeed: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
             <h2 className="text-xl font-semibold flex items-center text-white">
-              <Brain className="mr-2 text-purple-400" />
-              AI-Powered Social Monitoring
+              <MessageSquare className="mr-2" />
+              Real-time Social Media Monitoring
             </h2>
-            {usingSampleData && (
-              <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded border border-yellow-500/30">
-                Demo Mode - Sample Data
-              </span>
-            )}
             {lastRefresh && (
               <span className="text-xs text-slate-400">
                 Last updated: {formatTimeAgo(lastRefresh.toISOString())}
@@ -528,15 +445,6 @@ const SocialMentionsFeed: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setAutoRefresh(!autoRefresh)}
-              className={`p-2 rounded transition-colors ${
-                autoRefresh ? 'bg-green-500/20 text-green-400' : 'bg-slate-600 text-slate-400'
-              }`}
-              title={autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
-            >
-              <Activity size={16} />
-            </button>
             
             <button
               onClick={() => setShowAnalytics(!showAnalytics)}
@@ -547,23 +455,6 @@ const SocialMentionsFeed: React.FC = () => {
               <BarChart3 size={16} />
             </button>
             
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 rounded transition-colors ${
-                showFilters ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-600 text-slate-400'
-              }`}
-            >
-              <Filter size={16} />
-            </button>
-            
-            <button
-              onClick={triggerScraping}
-              disabled={loading}
-              className="p-2 bg-sky-500 hover:bg-sky-600 text-white rounded transition-colors disabled:opacity-50"
-              title={loading ? 'Refreshing data...' : 'Refresh social media data'}
-            >
-              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-            </button>
           </div>
         </div>
 
@@ -613,74 +504,17 @@ const SocialMentionsFeed: React.FC = () => {
           </div>
         )}
 
-        {/* Filters Panel */}
-        {showFilters && (
-          <div className="mb-4 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm text-slate-300 mb-2">Min Urgency: {filters.urgencyMin}</label>
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={filters.urgencyMin}
-                  onChange={(e) => setFilters(prev => ({ ...prev, urgencyMin: parseInt(e.target.value) }))}
-                  className="w-full"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm text-slate-300 mb-2">Min Confidence: {filters.confidenceMin.toFixed(1)}</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={filters.confidenceMin}
-                  onChange={(e) => setFilters(prev => ({ ...prev, confidenceMin: parseFloat(e.target.value) }))}
-                  className="w-full"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm text-slate-300 mb-2">Time Range</label>
-                <select
-                  value={filters.timeRange}
-                  onChange={(e) => setFilters(prev => ({ ...prev, timeRange: e.target.value as FilterState['timeRange'] }))}
-                  className="w-full bg-slate-600 text-white rounded px-2 py-1"
-                >
-                  <option value="all">All Time</option>
-                  <option value="1h">Last Hour</option>
-                  <option value="6h">Last 6 Hours</option>
-                  <option value="24h">Last 24 Hours</option>
-                  <option value="7d">Last 7 Days</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <label className="block text-sm text-slate-300 mb-2">Search Keywords</label>
-              <input
-                type="text"
-                value={filters.keywords}
-                onChange={(e) => setFilters(prev => ({ ...prev, keywords: e.target.value }))}
-                placeholder="Search content, keywords, hashtags..."
-                className="w-full bg-slate-600 text-white rounded px-3 py-2"
-              />
-            </div>
-          </div>
-        )}
 
         {/* Mentions List */}
         <div className="space-y-4 flex-1 overflow-y-auto">
-          {filteredMentions.length === 0 ? (
+          {sortedMentions.length === 0 ? (
             <div className="text-center py-8 text-slate-400 flex flex-col items-center justify-center h-full">
               <Search className="mx-auto mb-2 opacity-50" size={48} />
-              <p>No mentions match your current filters</p>
-              <p className="text-sm">Try adjusting your filter criteria</p>
+              <p>No social media mentions found</p>
+              <p className="text-sm">Check back later for new content</p>
             </div>
           ) : (
-            filteredMentions.map((mention) => {
+            sortedMentions.map((mention) => {
               const dominantEmotion = getDominantEmotion(mention.emotion_analysis);
               
               return (
@@ -810,21 +644,12 @@ const SocialMentionsFeed: React.FC = () => {
         </div>
         
         {/* Footer */}
-        {filteredMentions.length > 0 && (
+        {sortedMentions.length > 0 && (
           <div className="mt-4 pt-4 border-t border-slate-600 flex-shrink-0">
             <div className="flex items-center justify-between">
               <span className="text-sm text-slate-400">
-                Showing {filteredMentions.length} of {mentions.length} mentions
+                Showing {sortedMentions.length} mentions
               </span>
-              <button 
-                onClick={fetchMentions}
-                className="text-sky-400 hover:text-sky-300 text-sm font-medium transition-colors flex items-center disabled:opacity-50"
-                disabled={loading}
-                title={loading ? 'Refreshing...' : 'Refresh data from database'}
-              >
-                <RefreshCw className={`mr-1 ${loading ? 'animate-spin' : ''}`} size={14} />
-                {loading ? 'Refreshing...' : 'Refresh'}
-              </button>
             </div>
           </div>
         )}
