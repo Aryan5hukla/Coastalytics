@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, Report } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { 
   AlertTriangle, 
   CheckCircle, 
@@ -20,6 +21,7 @@ interface ReportsViewProps {
 
 export default function ReportsView({ initialStatusFilter }: ReportsViewProps) {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   const [reports, setReports] = useState<Report[]>([]);
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,7 +157,7 @@ export default function ReportsView({ initialStatusFilter }: ReportsViewProps) {
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search reports..."
+                placeholder={t('reports.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:ring-sky-500 focus:border-sky-500 w-full"
@@ -169,11 +171,11 @@ export default function ReportsView({ initialStatusFilter }: ReportsViewProps) {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="bg-slate-700 border border-slate-600 rounded-md text-white px-3 py-2 text-sm focus:ring-sky-500 focus:border-sky-500"
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="pending_verification">Pending Verification</option>
-              <option value="verified">Verified</option>
-              <option value="dismissed">Dismissed</option>
+              <option value="all">{t('reports.allStatus')}</option>
+              <option value="pending">{t('reports.pending')}</option>
+              <option value="pending_verification">{t('reports.pendingVerification')}</option>
+              <option value="verified">{t('reports.verified')}</option>
+              <option value="dismissed">{t('reports.dismissed')}</option>
             </select>
             
             <select
@@ -181,12 +183,12 @@ export default function ReportsView({ initialStatusFilter }: ReportsViewProps) {
               onChange={(e) => setHazardFilter(e.target.value)}
               className="bg-slate-700 border border-slate-600 rounded-md text-white px-3 py-2 text-sm focus:ring-sky-500 focus:border-sky-500"
             >
-              <option value="all">All Hazards</option>
-              <option value="cyclone">Cyclone</option>
-              <option value="tsunami">Tsunami</option>
-              <option value="storm_surge">Storm Surge</option>
-              <option value="coastal_erosion">Coastal Erosion</option>
-              <option value="flooding">Flooding</option>
+              <option value="all">{t('reports.allHazards')}</option>
+              <option value="cyclone">{t('hazard.cyclone')}</option>
+              <option value="tsunami">{t('hazard.tsunami')}</option>
+              <option value="storm_surge">{t('hazard.stormSurge')}</option>
+              <option value="coastal_erosion">{t('hazard.coastalErosion')}</option>
+              <option value="flooding">{t('hazard.flooding')}</option>
             </select>
           </div>
         </div>

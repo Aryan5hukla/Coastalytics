@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import LandingPage from './components/LandingPage';
 import LoginForm from './components/auth/LoginForm';
 import SignUpForm from './components/auth/SignUpForm';
@@ -13,21 +15,28 @@ import ReportsMapView from './components/reports/ReportsMapView';
 import AlertsView from './components/alerts/AlertsView';
 import AIPredictionView from './components/dashboard/AIPredictionView';
 import SocialMentionsFeed from './components/dashboard/SocialMentionsFeed';
+import SettingsPage from './components/settings/SettingsPage';
 
-function App() {
+function AppContent() {
   const { user, profile, loading } = useAuth();
+  const { t } = useLanguage();
   
   const [activeView, setActiveView] = useState(''); // Will be set after auth loads
   const [authView, setAuthView] = useState<'landing' | 'login' | 'signup'>('landing');
   const [isInitialized, setIsInitialized] = useState(false);
   const [viewParams, setViewParams] = useState<string>('');
 
-  // Save activeView to localStorage whenever it changes (but only after initialization)
+  // Save activeView and viewParams to localStorage whenever they change (but only after initialization)
   useEffect(() => {
     if (isInitialized && user) {
       localStorage.setItem('coastalytics_activeView', activeView);
+      if (viewParams) {
+        localStorage.setItem('coastalytics_viewParams', viewParams);
+      } else {
+        localStorage.removeItem('coastalytics_viewParams');
+      }
     }
-  }, [activeView, isInitialized, user]);
+  }, [activeView, viewParams, isInitialized, user]);
 
   // Enhanced navigation function to handle view with parameters
   const navigateToView = (viewWithParams: string) => {
@@ -46,12 +55,16 @@ function App() {
     if (user && profile && !loading && !isInitialized) {
       setAuthView('landing');
       
-      // First, try to get saved view from localStorage
+      // First, try to get saved view and params from localStorage
       const savedView = localStorage.getItem('coastalytics_activeView');
+      const savedParams = localStorage.getItem('coastalytics_viewParams');
       
       if (savedView) {
         // Use saved view if it exists
         setActiveView(savedView);
+        if (savedParams) {
+          setViewParams(savedParams);
+        }
       } else {
         // Set default view to dashboard for all users if no saved view
         setActiveView('dashboard');
@@ -64,7 +77,9 @@ function App() {
     if (!user && !loading) {
       setIsInitialized(false);
       localStorage.removeItem('coastalytics_activeView');
+      localStorage.removeItem('coastalytics_viewParams');
       setActiveView(''); // Will be set when next user logs in
+      setViewParams('');
     }
   }, [user, profile, loading, isInitialized]);
 
@@ -111,33 +126,34 @@ function App() {
   // Main dashboard interface
   const getViewTitle = (view: string) => {
     switch (view) {
-      case 'dashboard': return 'Dashboard Overview';
-      case 'map': return 'Interactive Map';
-      case 'reports': return 'Citizen Reports';
-      case 'report-form': return 'Report Ocean Hazard';
-      case 'reports-map': return 'Reports Map View';
-      case 'alerts': return 'Alert Management';
-      case 'validation': return 'Validation Queue';
-      case 'predictions': return 'AI Predictions';
-      case 'social': return 'Social Media Monitor';
-      case 'resources': return 'Emergency Resources';
-      case 'settings': return 'Settings';
-      default: return 'Dashboard';
+      case 'dashboard': return t('page.dashboard.title');
+      case 'map': return t('page.map.title');
+      case 'reports': return t('page.reports.title');
+      case 'report-form': return t('page.reportForm.title');
+      case 'reports-map': return t('page.reportsMap.title');
+      case 'alerts': return t('page.alerts.title');
+      case 'validation': return t('page.validation.title');
+      case 'predictions': return t('page.predictions.title');
+      case 'social': return t('page.social.title');
+      case 'resources': return t('page.resources.title');
+      case 'settings': return t('page.settings.title');
+      default: return t('page.dashboard.title');
     }
   };
 
   const getViewSubtitle = (view: string) => {
     switch (view) {
-      case 'dashboard': return 'Real-time monitoring and system overview';
-      case 'map': return 'Interactive coastal hazard visualization';
-      case 'reports': return 'Citizen-submitted hazard reports and validation';
-      case 'report-form': return 'Submit a new ocean hazard report with location and media';
-      case 'reports-map': return 'View all submitted reports on an interactive map';
-      case 'alerts': return 'Create and manage emergency alerts';
-      case 'validation': return 'Review and verify pending reports';
-      case 'predictions': return 'AI-generated hazard predictions and forecasts';
-      case 'social': return 'Social media sentiment and keyword analysis';
-      case 'resources': return 'Emergency resources and shelter locations';
+      case 'dashboard': return t('page.dashboard.subtitle');
+      case 'map': return t('page.map.subtitle');
+      case 'reports': return t('page.reports.subtitle');
+      case 'report-form': return t('page.reportForm.subtitle');
+      case 'reports-map': return t('page.reportsMap.subtitle');
+      case 'alerts': return t('page.alerts.subtitle');
+      case 'validation': return t('page.validation.subtitle');
+      case 'predictions': return t('page.predictions.subtitle');
+      case 'social': return t('page.social.subtitle');
+      case 'resources': return t('page.resources.subtitle');
+      case 'settings': return t('page.settings.subtitle');
       default: return '';
     }
   };
@@ -148,6 +164,14 @@ function App() {
       if (viewParams) {
         const urlParams = new URLSearchParams(viewParams);
         return urlParams.get('status');
+      }
+      return null;
+    };
+
+    const getTabFromParams = () => {
+      if (viewParams) {
+        const urlParams = new URLSearchParams(viewParams);
+        return urlParams.get('tab');
       }
       return null;
     };
@@ -189,12 +213,17 @@ function App() {
         );
       case 'settings':
         return (
-          <div className="p-6">
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-12 text-center">
-              <h2 className="text-xl font-bold text-white mb-4">Settings</h2>
-              <p className="text-slate-400">User preferences and system configuration options.</p>
-            </div>
-          </div>
+          <SettingsPage 
+            initialTab={getTabFromParams() || 'profile'}
+            onTabChange={(tab) => {
+              // Update URL parameters to preserve tab on refresh
+              if (tab !== 'profile') {
+                setViewParams(`tab=${tab}`);
+              } else {
+                setViewParams('');
+              }
+            }}
+          />
         );
       default:
         return <DashboardOverview onNavigate={navigateToView} />;
@@ -216,6 +245,16 @@ function App() {
         </main>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <SettingsProvider>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
+    </SettingsProvider>
   );
 }
 

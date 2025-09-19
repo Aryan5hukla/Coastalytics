@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../contexts/LanguageContext';
 import {
   BarChart3,
   Map,
@@ -23,29 +24,30 @@ interface SidebarProps {
 
 export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const { profile, signOut } = useAuth();
+  const { t } = useLanguage();
 
   const citizenMenuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'report-form', label: 'Report Hazard', icon: PlusCircle },
-    { id: 'reports-map', label: 'View Reports', icon: MapPin },
-    { id: 'map', label: 'Interactive Map', icon: Map },
-    { id: 'predictions', label: 'AI Predictions', icon: Activity },
-    { id: 'social', label: 'Social Media', icon: Users },
+    { id: 'dashboard', label: t('nav.dashboard'), icon: BarChart3 },
+    { id: 'report-form', label: t('nav.reportForm'), icon: PlusCircle },
+    { id: 'reports-map', label: t('nav.reportsMap'), icon: MapPin },
+    { id: 'map', label: t('nav.map'), icon: Map },
+    { id: 'predictions', label: t('nav.predictions'), icon: Activity },
+    { id: 'social', label: t('nav.social'), icon: Users },
   ];
 
   const analystMenuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'map', label: 'Interactive Map', icon: Map },
-    { id: 'reports', label: 'Citizen Reports', icon: AlertTriangle },
-    { id: 'predictions', label: 'AI Predictions', icon: Activity },
-    { id: 'social', label: 'Social Media', icon: Users },
+    { id: 'dashboard', label: t('nav.dashboard'), icon: BarChart3 },
+    { id: 'map', label: t('nav.map'), icon: Map },
+    { id: 'reports', label: t('nav.reports'), icon: AlertTriangle },
+    { id: 'predictions', label: t('nav.predictions'), icon: Activity },
+    { id: 'social', label: t('nav.social'), icon: Users },
   ];
 
   const officialMenuItems = [
     ...analystMenuItems,
-    { id: 'validation', label: 'Validation Queue', icon: CheckCircle },
-    { id: 'alerts', label: 'Alert Management', icon: Shield },
-    { id: 'resources', label: 'Emergency Resources', icon: Database },
+    { id: 'validation', label: t('nav.validation'), icon: CheckCircle },
+    { id: 'alerts', label: t('nav.alerts'), icon: Shield },
+    { id: 'resources', label: t('nav.resources'), icon: Database },
   ];
 
   const getMenuItems = () => {
@@ -139,7 +141,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
             }`}
           >
             <Settings className="w-4 h-4" />
-            <span>Settings</span>
+            <span>{t('nav.settings')}</span>
           </button>
           
           <button
@@ -147,7 +149,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
             className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-red-600/20 transition-colors"
           >
             <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
+            <span>{t('common.signOut')}</span>
           </button>
         </div>
       </div>
