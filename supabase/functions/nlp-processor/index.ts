@@ -267,6 +267,23 @@ function calculateConfidenceScore(analysis: any): number {
   
   // Higher confidence for emergency content
   if (analysis.text_classification.is_emergency) {
+    confidence += 0.15;
+  }
+  
+  // Boost confidence for official sources (real-time enhancement)
+  if (analysis.source && (analysis.source.includes('twitter') && 
+      (analysis.source.includes('imd') || analysis.source.includes('incois') || 
+       analysis.source.includes('official') || analysis.source.includes('govt')))) {
+    confidence += 0.2;
+  }
+  
+  // Higher confidence for high urgency real-time content
+  if (analysis.urgency_score && analysis.urgency_score >= 4) {
+    confidence += 0.1;
+  }
+  
+  // Higher confidence for relevant real-time content
+  if (analysis.text_classification.is_relevant) {
     confidence += 0.1;
   }
   
@@ -313,27 +330,37 @@ async function analyzeImage(imageUrl: string): Promise<any> {
   }
 }
 
-// Main processing function
+// Enhanced real-time text processing function
 async function processTextWithNLP(request: NLPRequest): Promise<NLPResponse> {
-  const { text, imageUrls = [] } = request;
+  const { text, source, location, imageUrls = [] } = request;
   
-  // Extract keywords
+  // Extract keywords with source-specific weighting
   const keywords = extractKeywords(text);
   
-  // Analyze sentiment
+  // Analyze sentiment with real-time context
   const sentimentScore = analyzeSentiment(text);
   
-  // Analyze emotions
+  // Analyze emotions with enhanced detection
   const emotions = analyzeEmotions(text);
   
-  // Extract named entities
+  // Extract named entities with location validation
   const namedEntities = extractNamedEntities(text);
   
-  // Analyze urgency
-  const urgencyScore = analyzeUrgency(text);
+  // Analyze urgency with source credibility weighting
+  let urgencyScore = analyzeUrgency(text);
   
-  // Classify text
+  // Boost urgency for official sources
+  if (source && (source.includes('imd') || source.includes('incois') || source.includes('ndrf') || 
+                 source.includes('coastguard') || source.includes('official'))) {
+    urgencyScore = Math.min(5, urgencyScore + 1);
+  }
+  
+  // Classify text with real-time context
   const textClassification = classifyText(text, keywords);
+  
+  // Enhanced real-time relevance check
+  const isRealTimeRelevant = checkRealTimeRelevance(text, source, location);
+  textClassification.is_relevant = textClassification.is_relevant || isRealTimeRelevant;
   
   // Analyze images if provided
   let imageAnalysis;
@@ -349,11 +376,13 @@ async function processTextWithNLP(request: NLPRequest): Promise<NLPResponse> {
     };
   }
   
-  // Calculate confidence score
+  // Calculate confidence score with real-time factors
   const analysis = {
     keywords,
     named_entities: namedEntities,
-    text_classification: textClassification
+    text_classification: textClassification,
+    source: source,
+    urgency_score: urgencyScore
   };
   const confidenceScore = calculateConfidenceScore(analysis);
   
@@ -367,6 +396,37 @@ async function processTextWithNLP(request: NLPRequest): Promise<NLPResponse> {
     text_classification: textClassification,
     image_analysis: imageAnalysis
   };
+}
+
+// Enhanced real-time relevance checker
+function checkRealTimeRelevance(text: string, source?: string, location?: string): boolean {
+  const lowerText = text.toLowerCase();
+  
+  // High relevance for emergency terms
+  const emergencyTerms = ['emergency', 'alert', 'warning', 'evacuation', 'urgent', 'immediate', 'danger'];
+  if (emergencyTerms.some(term => lowerText.includes(term))) {
+    return true;
+  }
+  
+  // High relevance for live/breaking updates
+  const liveTerms = ['breaking', 'live', 'happening now', 'currently', 'just reported', 'update'];
+  if (liveTerms.some(term => lowerText.includes(term))) {
+    return true;
+  }
+  
+  // High relevance for specific coastal locations
+  const coastalAreas = ['chennai', 'mumbai', 'kolkata', 'gujarat', 'odisha', 'kerala', 'bay of bengal', 'arabian sea'];
+  if (coastalAreas.some(area => lowerText.includes(area))) {
+    return true;
+  }
+  
+  // High relevance for time-sensitive marine conditions
+  const marineConditions = ['high waves', 'rough seas', 'storm surge', 'tidal', 'coastal flooding'];
+  if (marineConditions.some(condition => lowerText.includes(condition))) {
+    return true;
+  }
+  
+  return false;
 }
 
 // Main server function

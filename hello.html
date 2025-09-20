@@ -1,0 +1,2293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OceanGuard - Protecting Coastal Communities</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/32/4577/4577114.png" type="image/png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-ocean: #0284c7;
+            --deep-blue: #1e3a8a;
+            --coral-accent: #f97316;
+            --emerald: #10b981;
+            --teal: #14b8a6;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --text-white: #ffffff;
+            --text-gray: #cbd5e1;
+            
+            /* Enhanced Gradients */
+            --gradient-ocean: linear-gradient(135deg, #0ea5e9 0%, #0891b2 50%, #0c4a6e 100%);
+            --gradient-emerald: linear-gradient(135deg, #14b8a6 0%, #10b981 50%, #059669 100%);
+            --gradient-coral: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
+            --gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+            --gradient-teal: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
+            --gradient-sunset: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ea580c 100%);
+            --gradient-rainbow: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff);
+            --gradient-cosmic: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #020617 100%);
+            
+            --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 15px 35px rgba(0, 0, 0, 0.15);
+            --shadow-large: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gradient-dark);
+            color: var(--text-white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 0.95rem;
+        }
+
+        /* Ocean Theme Animated Background */
+        .ocean-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: linear-gradient(135deg, 
+                #0a1628 0%, 
+                #1e293b 25%, 
+                #334155 50%, 
+                #1e293b 75%, 
+                #0a1628 100%
+            );
+            animation: oceanFlow 20s ease-in-out infinite;
+        }
+
+        @keyframes oceanFlow {
+            0%, 100% { 
+                background: linear-gradient(135deg, #0a1628 0%, #1e293b 25%, #334155 50%, #1e293b 75%, #0a1628 100%);
+            }
+            50% { 
+                background: linear-gradient(135deg, #334155 0%, #1e293b 25%, #0a1628 50%, #1e293b 75%, #334155 100%);
+            }
+        }
+
+        /* Enhanced Animated Background Waves */
+        .ocean-waves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200"><path d="M0 100 Q250 60 500 100 T1000 100 V200 H0Z" fill="rgba(6,182,212,0.08)"/><path d="M0 120 Q250 80 500 120 T1000 120 V200 H0Z" fill="rgba(14,165,233,0.06)"/><path d="M0 140 Q250 100 500 140 T1000 140 V200 H0Z" fill="rgba(8,145,178,0.04)"/></svg>') repeat-x;
+            animation: oceanWaveFlow 30s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes oceanWaveFlow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Clean Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 2px solid transparent;
+            border-image: var(--gradient-ocean) 1;
+        }
+
+        .nav-content {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--gradient-rainbow);
+            background-size: 200% 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            animation: logoShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes logoShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .site-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 0.75rem;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%2306b6d4" stroke="%23ffffff" stroke-width="2"/><path d="M30 50 Q40 30 50 50 Q60 70 70 50" stroke="%23ffffff" stroke-width="3" fill="none"/><circle cx="35" cy="45" r="2" fill="%23ffffff"/><circle cx="55" cy="55" r="2" fill="%23ffffff"/><circle cx="65" cy="45" r="2" fill="%23ffffff"/></svg>') no-repeat center / contain;
+            animation: siteIconFloat 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.6));
+        }
+
+        @keyframes siteIconFloat {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+                filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.6));
+            }
+            50% { 
+                transform: translateY(-3px) rotate(5deg);
+                filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.9));
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-ocean);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-white);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Enhanced Hero Section */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            padding: 6rem 2rem 3rem;
+            position: relative;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.8) 0%, 
+                rgba(30, 58, 138, 0.7) 30%,
+                rgba(6, 182, 212, 0.6) 70%,
+                rgba(8, 145, 178, 0.8) 100%
+            );
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(8, 145, 178, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            animation: communityGlow 12s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes communityGlow {
+            0%, 100% { 
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            33% { 
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+            66% { 
+                opacity: 0.6;
+                transform: scale(1.02);
+            }
+        }
+
+        .hero-content {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Simple Clean Title */
+        .hero-text h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .hero-text .subtitle {
+            font-size: 1.2rem;
+            color: rgba(203, 213, 225, 0.9);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        /* Interactive Community Network Visualization */
+        .hero-visual {
+            position: relative;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, 
+                #0ea5e9 0%, 
+                #0891b2 25%, 
+                #0c4a6e 50%, 
+                #1e40af 75%, 
+                #3730a3 100%
+            );
+            box-shadow: 0 20px 40px rgba(14, 165, 233, 0.3);
+            animation: oceanVisualPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes oceanVisualPulse {
+            0%, 100% { 
+                box-shadow: 0 20px 40px rgba(14, 165, 233, 0.3);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 30px 60px rgba(14, 165, 233, 0.5);
+                transform: scale(1.02);
+            }
+        }
+
+        /* Community Network Nodes */
+        .network-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .community-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: nodeFloat 6s ease-in-out infinite;
+        }
+
+        .community-node:hover {
+            transform: scale(1.5);
+            z-index: 10;
+        }
+
+        .node-coastal {
+            background: radial-gradient(circle, #06b6d4, #0891b2);
+            top: 20%;
+            left: 20%;
+            box-shadow: 0 0 30px #06b6d4;
+        }
+
+        .node-fishing {
+            background: radial-gradient(circle, #10b981, #059669);
+            top: 25%;
+            left: 75%;
+            box-shadow: 0 0 30px #10b981;
+            animation-delay: 1s;
+        }
+
+        .node-tourism {
+            background: radial-gradient(circle, #f59e0b, #f97316);
+            top: 65%;
+            left: 25%;
+            box-shadow: 0 0 30px #f59e0b;
+            animation-delay: 2s;
+        }
+
+        .node-port {
+            background: radial-gradient(circle, #8b5cf6, #7c3aed);
+            top: 70%;
+            left: 70%;
+            box-shadow: 0 0 30px #8b5cf6;
+            animation-delay: 3s;
+        }
+
+        .node-center {
+            background: radial-gradient(circle, #ffffff, #e5e7eb);
+            top: 45%;
+            left: 47.5%;
+            width: 80px;
+            height: 80px;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
+            animation-delay: 0.5s;
+            color: #1f2937;
+        }
+
+        @keyframes nodeFloat {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+                filter: brightness(1);
+            }
+            33% { 
+                transform: translateY(-8px) rotate(5deg);
+                filter: brightness(1.2);
+            }
+            66% { 
+                transform: translateY(-4px) rotate(-3deg);
+                filter: brightness(1.1);
+            }
+        }
+
+        /* Dynamic Connection Lines */
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: connectionFlow 4s ease-in-out infinite;
+            transform-origin: left center;
+        }
+
+        .line-1 {
+            top: 32%;
+            left: 26%;
+            width: 22%;
+            transform: rotate(12deg);
+        }
+
+        .line-2 {
+            top: 35%;
+            left: 52%;
+            width: 25%;
+            transform: rotate(-18deg);
+            animation-delay: 1s;
+        }
+
+        .line-3 {
+            top: 55%;
+            left: 31%;
+            width: 18%;
+            transform: rotate(-35deg);
+            animation-delay: 2s;
+        }
+
+        .line-4 {
+            top: 58%;
+            left: 47%;
+            width: 24%;
+            transform: rotate(22deg);
+            animation-delay: 3s;
+        }
+
+        @keyframes connectionFlow {
+            0%, 100% { 
+                opacity: 0.3;
+                transform: scaleX(0);
+            }
+            50% { 
+                opacity: 1;
+                transform: scaleX(1);
+            }
+        }
+
+        /* Data Flow Indicators */
+        .data-flow {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #22d3ee, #06b6d4);
+            animation: dataFlowMove 3s linear infinite;
+        }
+
+        .flow-1 {
+            top: 30%;
+            left: 25%;
+            animation-delay: 0s;
+        }
+
+        .flow-2 {
+            top: 33%;
+            left: 75%;
+            animation-delay: 1s;
+        }
+
+        .flow-3 {
+            top: 67%;
+            left: 30%;
+            animation-delay: 2s;
+        }
+
+        @keyframes dataFlowMove {
+            0% { 
+                transform: scale(0);
+                opacity: 0;
+            }
+            25% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            75% { 
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+            100% { 
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Enhanced CTA Buttons */
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-signup {
+            background: var(--gradient-emerald);
+            color: white;
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-login {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-white);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-login:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 5rem 2rem;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient-rainbow);
+            background-size: 200% 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes titleShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: rgba(203, 213, 225, 0.8);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Enhanced How It Works Section */
+        .how-it-works {
+            background: linear-gradient(135deg, 
+                rgba(8, 145, 178, 0.2) 0%, 
+                rgba(6, 182, 212, 0.15) 50%, 
+                rgba(14, 165, 233, 0.1) 100%
+            );
+            position: relative;
+        }
+
+        .how-it-works::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(8, 145, 178, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
+            animation: sectionGlow 10s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes sectionGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-card {
+            background: rgba(15, 23, 42, 0.85);
+            padding: 2.5rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            backdrop-filter: blur(20px);
+            position: relative;
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(8, 145, 178, 0.2) 0%, 
+                rgba(6, 182, 212, 0.1) 100%
+            );
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .step-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(8, 145, 178, 0.5);
+        }
+
+        .step-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Enhanced Step Icons */
+        .step-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-rainbow);
+            background-size: 200% 200%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            margin: 0 auto 1.5rem;
+            animation: iconFloat 6s ease-in-out infinite, iconShimmer 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(8, 145, 178, 0.3);
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+            }
+            33% { 
+                transform: translateY(-8px) rotate(2deg);
+            }
+            66% { 
+                transform: translateY(-5px) rotate(-1deg);
+            }
+        }
+
+        @keyframes iconShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .step-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-white);
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-card p {
+            color: rgba(203, 213, 225, 0.8);
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+            font-size: 1rem;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            background: linear-gradient(135deg, 
+                rgba(139, 92, 246, 0.15) 0%, 
+                rgba(124, 58, 237, 0.1) 50%, 
+                rgba(109, 40, 217, 0.15) 100%
+            );
+            overflow: hidden;
+            position: relative;
+        }
+
+        .testimonials::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            animation: testimonialGlow 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes testimonialGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .testimonial-carousel {
+            position: relative;
+            margin-top: 3rem;
+        }
+
+        .testimonial-container {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .testimonial-track {
+            display: flex;
+            animation: slide-testimonials 30s linear infinite;
+            gap: 1.5rem;
+        }
+
+        @keyframes slide-testimonials {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .testimonial-card {
+            min-width: 280px;
+            max-width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 15px;
+            color: var(--slate-900);
+            box-shadow: var(--shadow-medium);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .testimonial-card:hover {
+            transform: scale(1.05);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .testimonial-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .testimonial-info h4 {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .testimonial-info p {
+            color: var(--slate-700);
+            font-size: 0.8rem;
+        }
+
+        .testimonial-rating {
+            color: #f59e0b;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            line-height: 1.5;
+            color: var(--slate-700);
+            font-size: 0.9rem;
+        }
+
+        /* Organizations Section */
+        .organizations {
+            background: linear-gradient(135deg, 
+                rgba(249, 115, 22, 0.15) 0%, 
+                rgba(234, 88, 12, 0.1) 50%, 
+                rgba(220, 38, 38, 0.15) 100%
+            );
+            position: relative;
+        }
+
+        .organizations::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 30%, rgba(249, 115, 22, 0.1) 0%, transparent 50%);
+            animation: orgGlow 7s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes orgGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .org-carousel {
+            position: relative;
+            margin-top: 3rem;
+            overflow: hidden;
+        }
+
+        .org-track {
+            display: flex;
+            animation: slide-orgs 25s linear infinite;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        @keyframes slide-orgs {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .org-logo {
+            min-width: 200px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--slate-700);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+        }
+
+        .org-logo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Enhanced Communities Section with Icon Effects */
+        .communities {
+            background: linear-gradient(135deg, 
+                rgba(16, 185, 129, 0.15) 0%, 
+                rgba(5, 150, 105, 0.1) 50%, 
+                rgba(4, 120, 87, 0.15) 100%
+            );
+            position: relative;
+        }
+
+        .communities::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+            animation: communityGlow 9s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes communityGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.9; }
+        }
+
+        .communities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .community-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            color: var(--slate-900);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(16, 185, 129, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .community-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(16, 185, 129, 0.1) 0%, 
+                transparent 50%,
+                rgba(5, 150, 105, 0.1) 100%
+            );
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .community-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 20px 50px rgba(16, 185, 129, 0.3);
+        }
+
+        .community-card:hover::before {
+            opacity: 1;
+        }
+
+        .community-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Enhanced Community Icons with Advanced Effects */
+        .community-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-emerald);
+            background-size: 200% 200%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            position: relative;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            animation: communityIconPulse 4s ease-in-out infinite;
+            box-shadow: 
+                0 10px 25px rgba(16, 185, 129, 0.4),
+                inset 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .community-icon::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, 
+                #10b981, 
+                #14b8a6, 
+                #059669, 
+                #0d9488,
+                #10b981
+            );
+            background-size: 300% 300%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            animation: iconBorderRotate 3s linear infinite;
+        }
+
+        .community-icon:hover::before {
+            opacity: 0.8;
+        }
+
+        @keyframes communityIconPulse {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                background-position: 0% 50%;
+                box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            }
+            25% { 
+                transform: scale(1.05) rotate(2deg);
+                background-position: 50% 25%;
+                box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6);
+            }
+            50% { 
+                transform: scale(1.1) rotate(0deg);
+                background-position: 100% 50%;
+                box-shadow: 0 20px 45px rgba(16, 185, 129, 0.8);
+            }
+            75% { 
+                transform: scale(1.05) rotate(-2deg);
+                background-position: 150% 75%;
+                box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6);
+            }
+        }
+
+        @keyframes iconBorderRotate {
+            0% { 
+                background-position: 0% 50%;
+                transform: rotate(0deg);
+            }
+            100% { 
+                background-position: 100% 50%;
+                transform: rotate(360deg);
+            }
+        }
+
+        .community-icon:hover {
+            transform: scale(1.2) rotate(15deg);
+            box-shadow: 
+                0 25px 60px rgba(16, 185, 129, 0.6),
+                inset 0 0 30px rgba(0, 0, 0, 0.2);
+            animation-play-state: paused;
+        }
+
+        .community-icon i {
+            animation: iconBreathe 3s ease-in-out infinite;
+            z-index: 2;
+            position: relative;
+        }
+
+        @keyframes iconBreathe {
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+            }
+            50% { 
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+            }
+        }
+
+        .community-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: var(--slate-900);
+            position: relative;
+            z-index: 2;
+        }
+
+        .community-stats {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-emerald);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: numberGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes numberGlow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.4));
+            }
+            50% { 
+                filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.8));
+            }
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--slate-700);
+        }
+
+        /* Enhanced Contact Section with Subtle Icon Effects */
+        .contact {
+            background: linear-gradient(135deg, 
+                rgba(245, 158, 11, 0.15) 0%, 
+                rgba(249, 115, 22, 0.1) 50%, 
+                rgba(234, 88, 12, 0.15) 100%
+            );
+            position: relative;
+        }
+
+        .contact::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+            animation: contactGlow 6s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes contactGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.9; }
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-info h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-white);
+        }
+
+        .contact-info p {
+            color: rgba(203, 213, 225, 0.8);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+            animation: contactItemFloat 5s ease-in-out infinite;
+        }
+
+        .contact-item:nth-child(2n) { animation-delay: 1s; }
+        .contact-item:nth-child(3n) { animation-delay: 2s; }
+        .contact-item:nth-child(4n) { animation-delay: 3s; }
+
+        @keyframes contactItemFloat {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(5px); }
+        }
+
+        /* Subtle Contact Icons with Light Effects (Original Size) */
+        .contact-item i {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-ocean);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .contact-item i::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, 
+                rgba(14, 165, 233, 0.5), 
+                rgba(8, 145, 178, 0.5), 
+                rgba(12, 74, 110, 0.5)
+            );
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .contact-item i:hover::before {
+            opacity: 1;
+        }
+
+        .contact-item i:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.5);
+        }
+
+        .contact-item i::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, 
+                rgba(255, 255, 255, 0.1),
+                transparent,
+                rgba(255, 255, 255, 0.05)
+            );
+            animation: contactIconShine 4s ease-in-out infinite;
+        }
+
+        @keyframes contactIconShine {
+            0%, 100% { 
+                opacity: 0.2;
+                transform: rotate(0deg);
+            }
+            50% { 
+                opacity: 0.5;
+                transform: rotate(180deg);
+            }
+        }
+
+        .contact-form {
+            background: rgba(15, 23, 42, 0.85);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(245, 158, 11, 0.1) 0%, 
+                transparent 50%,
+                rgba(249, 115, 22, 0.1) 100%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .contact-form:hover::before {
+            opacity: 1;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+            transform: scale(1.02);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(203, 213, 225, 0.6);
+        }
+
+        /* Success Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            color: var(--slate-900);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-large);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-emerald);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            animation: modalIconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes modalIconPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+            }
+        }
+
+        .modal h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            color: var(--slate-700);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            background: var(--gradient-ocean);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Enhanced Footer */
+        .footer {
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.98) 0%, 
+                rgba(30, 41, 59, 0.95) 100%
+            );
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            border-top: 2px solid transparent;
+            border-image: var(--gradient-ocean) 1;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            animation: footerGlow 10s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes footerGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .footer-content {
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-rainbow);
+            background-size: 200% 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: footerLogoGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes footerLogoGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .footer-logo i {
+            margin-right: 0.75rem;
+            font-size: 1.8rem;
+            animation: footerIconSpin 15s linear infinite;
+        }
+
+        @keyframes footerIconSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-link {
+            width: 50px;
+            height: 50px;
+            background: rgba(8, 145, 178, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--teal);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.3rem;
+            border: 2px solid rgba(8, 145, 178, 0.2);
+            animation: socialFloat 4s ease-in-out infinite;
+        }
+
+        .social-link:nth-child(2n) { animation-delay: 1s; }
+        .social-link:nth-child(3n) { animation-delay: 2s; }
+        .social-link:nth-child(4n) { animation-delay: 3s; }
+
+        @keyframes socialFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+
+        .social-link:hover {
+            background: var(--teal);
+            color: white;
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 25px rgba(8, 145, 178, 0.4);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(203, 213, 225, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-teal);
+            transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--teal);
+            transform: translateY(-2px);
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero {
+                min-height: 85vh;
+                padding: 5rem 1.5rem 2rem;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 3rem;
+            }
+
+            .hero-visual {
+                height: 300px;
+            }
+
+            .section-title {
+                font-size: 2.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .communities-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 3.5rem 1.5rem;
+            }
+
+            .step-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .testimonial-card {
+                min-width: 260px;
+                max-width: 260px;
+            }
+
+            .org-logo {
+                min-width: 150px;
+                height: 80px;
+            }
+
+            .community-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .contact-item i {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Enhanced Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean-bg"></div>
+    <div class="ocean-waves"></div>
+    
+    <!-- Clean Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <div class="site-icon"></div>
+                Coastalytics
+            </a>
+            <ul class="nav-links">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#organizations">Partners</a></li>
+                <li><a href="#communities">Communities</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Enhanced Hero Section with Simple Title -->
+    <section id="hero" class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Protecting Coastal Communities Together</h1>
+                <p class="subtitle">A revolutionary platform where communities report hazards with precision location tags, authorities verify reports instantly, and everyone stays safer through real-time coastal emergency awareness powered by AI and community intelligence.</p>
+                
+                <div class="cta-buttons">
+                    <button class="btn btn-signup" onclick="showSignupModal()">
+                        <i class="fas fa-user-plus"></i>
+                        Sign Up
+                    </button>
+                    <button class="btn btn-login" onclick="showLoginModal()">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Login
+                    </button>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="network-container">
+                    <!-- Community Network Nodes -->
+                    <div class="community-node node-coastal" title="Coastal Communities">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <div class="community-node node-fishing" title="Fishing Villages">
+                        <i class="fas fa-fish"></i>
+                    </div>
+                    <div class="community-node node-tourism" title="Tourist Areas">
+                        <i class="fas fa-umbrella-beach"></i>
+                    </div>
+                    <div class="community-node node-port" title="Port Cities">
+                        <i class="fas fa-ship"></i>
+                    </div>
+                    <div class="community-node node-center" title="OceanGuard Hub">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    
+                    <!-- Connection Lines -->
+                    <div class="connection-line line-1"></div>
+                    <div class="connection-line line-2"></div>
+                    <div class="connection-line line-3"></div>
+                    <div class="connection-line line-4"></div>
+                    
+                    <!-- Data Flow Indicators -->
+                    <div class="data-flow flow-1"></div>
+                    <div class="data-flow flow-2"></div>
+                    <div class="data-flow flow-3"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="section how-it-works">
+        <div class="container">
+            <h2 class="section-title fade-in">How It Works</h2>
+            <p class="section-subtitle fade-in">Advanced coastal protection through community collaboration</p>
+            
+            <div class="steps-grid">
+                <div class="step-card fade-in">
+                    <div class="step-icon">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                    <h3>Smart Detection</h3>
+                    <p>AI-powered sensors and community reports detect coastal hazards in real-time with precise location tagging and severity assessment.</p>
+                </div>
+                
+                <div class="step-card fade-in">
+                    <div class="step-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Intelligent Verification</h3>
+                    <p>Machine learning algorithms and expert authorities verify threats instantly, ensuring accurate and reliable emergency information.</p>
+                </div>
+                
+                <div class="step-card fade-in">
+                    <div class="step-icon">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <h3>Instant Alerts</h3>
+                    <p>Multi-channel alert system delivers warnings through mobile apps, SMS, sirens, and local media for maximum community reach.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="section testimonials">
+        <div class="container">
+            <h2 class="section-title fade-in" style="color: white;">What Communities Say</h2>
+            <p class="section-subtitle fade-in" style="color: rgba(255, 255, 255, 0.8);">Real experiences from coastal communities across India</p>
+            
+            <div class="testimonial-carousel">
+                <div class="testimonial-container">
+                    <div class="testimonial-track">
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Rajesh Kumar</h4>
+                                    <p>Fisherman, Kochi</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"OceanGuard saved our fishing fleet during the last cyclone. The early warning helped us move to safety hours before official alerts."</p>
+                        </div>
+                        
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Priya Sharma</h4>
+                                    <p>Village Leader, Visakhapatnam</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"The multilingual support made it accessible to everyone in our community. Even elderly residents can use it easily."</p>
+                        </div>
+                        
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Dr. Anand Rao</h4>
+                                    <p>Emergency Coordinator, Chennai</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"The real-time verification system helps us deploy resources more efficiently. Response times improved by 60%."</p>
+                        </div>
+                        
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Maya Desai</h4>
+                                    <p>NGO Worker, Mumbai</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"OceanGuard connects communities with help during emergencies. It's transforming disaster response."</p>
+                        </div>
+
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Captain Singh</h4>
+                                    <p>Coast Guard Officer</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"The platform's accuracy and speed have revolutionized our emergency response operations across coastal regions."</p>
+                        </div>
+
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Sunita Patel</h4>
+                                    <p>Tourist Guide, Goa</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"Keeping tourists safe is our priority. OceanGuard's real-time alerts help us make informed decisions daily."</p>
+                        </div>
+
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Ahmed Hassan</h4>
+                                    <p>Port Manager, Mangalore</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"Our port operations are now much safer and more efficient thanks to OceanGuard's predictive analytics."</p>
+                        </div>
+
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Lakshmi Nair</h4>
+                                    <p>Coastal Resident, Kerala</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"Living near the coast feels much safer now. The app sends timely warnings that help us prepare for any emergency."</p>
+                        </div>
+                        
+                        <!-- Duplicates for seamless loop -->
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Rajesh Kumar</h4>
+                                    <p>Fisherman, Kochi</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"OceanGuard saved our fishing fleet during the last cyclone. The early warning helped us move to safety hours before official alerts."</p>
+                        </div>
+                        
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                                <div class="testimonial-info">
+                                    <h4>Priya Sharma</h4>
+                                    <p>Village Leader, Visakhapatnam</p>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">★★★★★</div>
+                            <p class="testimonial-text">"The multilingual support made it accessible to everyone in our community. Even elderly residents can use it easily."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Organizations Section -->
+    <section id="organizations" class="section organizations">
+        <div class="container">
+            <h2 class="section-title fade-in" style="color: white;">Partner Organizations</h2>
+            <p class="section-subtitle fade-in" style="color: rgba(255, 255, 255, 0.8);">Trusted by leading institutions and government agencies</p>
+            
+            <div class="org-carousel">
+                <div class="org-track">
+                    <div class="org-logo">
+                        <i class="fas fa-university" style="margin-right: 0.5rem;"></i>
+                        INCOIS
+                    </div>
+                    <div class="org-logo">
+                        <i class="fas fa-globe" style="margin-right: 0.5rem;"></i>
+                        NDMA
+                    </div>
+                    <div class="org-logo">
+                        <i class="fas fa-ship" style="margin-right: 0.5rem;"></i>
+                        Coast Guard
+                    </div>
+                    <div class="org-logo">
+                        <i class="fas fa-satellite" style="margin-right: 0.5rem;"></i>
+                        ISRO
+                    </div>
+                    <div class="org-logo">
+                        <i class="fas fa-cloud" style="margin-right: 0.5rem;"></i>
+                        IMD
+                    </div>
+                    <div class="org-logo">
+                        <i class="fas fa-hands-helping" style="margin-right: 0.5rem;"></i>
+                        UNESCO
+                    </div>
+                    <!-- Duplicates for seamless loop -->
+                    <div class="org-logo">
+                        <i class="fas fa-university" style="margin-right: 0.5rem;"></i>
+                        INCOIS
+                    </div>
+                    <div class="org-logo">
+                        <i class="fas fa-globe" style="margin-right: 0.5rem;"></i>
+                        NDMA
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Communities Section with Icon Effects -->
+    <section id="communities" class="section communities">
+        <div class="container">
+            <h2 class="section-title fade-in" style="color: white;">Communities We Protect</h2>
+            <p class="section-subtitle fade-in" style="color: rgba(255, 255, 255, 0.8);">Making coastal areas safer across India</p>
+            
+            <div class="communities-grid">
+                <div class="community-card fade-in">
+                    <div class="community-header">
+                        <div class="community-icon">
+                            <i class="fas fa-fish"></i>
+                        </div>
+                        <h3>Fishing Communities</h3>
+                    </div>
+                    <p>Supporting traditional fishing villages with early storm warnings and safe return notifications.</p>
+                    <div class="community-stats">
+                        <div class="stat">
+                            <div class="stat-number">12,000+</div>
+                            <div class="stat-label">Fishermen</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">45</div>
+                            <div class="stat-label">Villages</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">States</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="community-card fade-in">
+                    <div class="community-header">
+                        <div class="community-icon">
+                            <i class="fas fa-umbrella-beach"></i>
+                        </div>
+                        <h3>Tourist Areas</h3>
+                    </div>
+                    <p>Keeping tourists safe with real-time beach conditions and emergency evacuation guidance.</p>
+                    <div class="community-stats">
+                        <div class="stat">
+                            <div class="stat-number">500K+</div>
+                            <div class="stat-label">Tourists</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">120</div>
+                            <div class="stat-label">Resorts</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">15</div>
+                            <div class="stat-label">Beaches</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="community-card fade-in">
+                    <div class="community-header">
+                        <div class="community-icon">
+                            <i class="fas fa-anchor"></i>
+                        </div>
+                        <h3>Port Cities</h3>
+                    </div>
+                    <p>Protecting major ports and shipping operations with advanced weather monitoring systems.</p>
+                    <div class="community-stats">
+                        <div class="stat">
+                            <div class="stat-number">2M+</div>
+                            <div class="stat-label">Residents</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">25</div>
+                            <div class="stat-label">Ports</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Cities</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="community-card fade-in">
+                    <div class="community-header">
+                        <div class="community-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3>Coastal Residents</h3>
+                    </div>
+                    <p>Safeguarding families living near coastlines with flood warnings and evacuation routes.</p>
+                    <div class="community-stats">
+                        <div class="stat">
+                            <div class="stat-number">800K+</div>
+                            <div class="stat-label">Families</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">200</div>
+                            <div class="stat-label">Villages</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">20</div>
+                            <div class="stat-label">Districts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Contact Section with Subtle Icon Effects -->
+    <section id="contact" class="section contact">
+        <div class="container">
+            <h2 class="section-title fade-in">Get In Touch</h2>
+            <p class="section-subtitle fade-in">Ready to make your coastal community safer?</p>
+            
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <p>Reach out to us for partnerships, technical support, or to learn more about implementing OceanGuard in your community.</p>
+                    
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <strong>Email</strong><br>
+                            contact@oceanguard.in
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <strong>Phone</strong><br>
+                            +91 800-OCEAN-1 (800-623-261)
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Address</strong><br>
+                            Marine Drive, Coastal Tech Hub<br>
+                            Mumbai, Maharashtra 400001
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <strong>Emergency Hotline</strong><br>
+                            24/7 Support: +91 112
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" name="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Email Address" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="organization" placeholder="Organization">
+                        </div>
+                        <div class="form-group">
+                            <textarea name="message" placeholder="How can we help your community?" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-signup" style="width: 100%;">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-shield-alt"></i>
+                Coastalytics
+            </div>
+            
+            <div class="footer-links">
+                <a href="#hero">Home</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="#organizations">Partners</a>
+                <a href="#communities">Communities</a>
+                <a href="#contact">Contact</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            
+            <div class="social-links">
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="#" class="social-link"><i class="fas fa-envelope"></i></a>
+            </div>
+            
+            <p style="color: rgba(203, 213, 225, 0.8); margin-top: 1.5rem;">
+                © 2025 Coastalytics. Revolutionizing coastal safety through AI-powered community intelligence.<br>
+                <span style="color: var(--teal); font-size: 0.9rem;">Built for Smart India Hackathon 2025</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3>Message Sent Successfully!</h3>
+            <p>Thank you for reaching out to Coastalytics. Our team will get back to you within 24 hours to discuss how we can help protect your coastal community.</p>
+            <button class="modal-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Simple modals
+        function showSignupModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #10b981, #059669); color: white;
+                padding: 3rem; border-radius: 20px; z-index: 10000; text-align: center;
+                max-width: 500px; font-family: 'Inter', sans-serif;
+                box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            `;
+            
+            modal.innerHTML = `
+                <h3 style="font-size: 1.4rem; margin-bottom: 1rem;">Welcome to OceanGuard!</h3>
+                <p style="margin-bottom: 1.5rem; line-height: 1.6;">Join thousands of coastal community members protecting their neighborhoods!</p>
+                <button onclick="this.parentElement.remove();" style="
+                    background: white; color: #10b981; border: none; padding: 1rem 2rem;
+                    border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1rem;">Got It!</button>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.remove(), 6000);
+        }
+
+        function showLoginModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #0891b2, #0c4a6e); color: white;
+                padding: 3rem; border-radius: 20px; z-index: 10000; text-align: center;
+                max-width: 500px; font-family: 'Inter', sans-serif;
+                box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            `;
+            
+            modal.innerHTML = `
+                <h3 style="font-size: 1.4rem; margin-bottom: 1rem;">Access Dashboard</h3>
+                <p style="margin-bottom: 1.5rem; line-height: 1.6;">View coastal alerts, report hazards, and connect with authorities.</p>
+                <button onclick="this.parentElement.remove();" style="
+                    background: white; color: #0891b2; border: none; padding: 1rem 2rem;
+                    border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1rem;">Got It!</button>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.remove(), 6000);
+        }
+
+        // Form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = this.querySelector('button[type="submit"]');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                this.reset();
+                btn.innerHTML = original;
+                btn.disabled = false;
+                document.getElementById('successModal').classList.add('show');
+            }, 2000);
+        });
+
+        function closeModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        // Close modal on outside click
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Enhanced navbar scroll effect
+        let lastScrollY = 0;
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            const scrollY = window.scrollY;
+            
+            if (scrollY > 100) {
+                navbar.style.background = 'rgba(15, 23, 42, 0.98)';
+                navbar.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+            } else {
+                navbar.style.background = 'rgba(15, 23, 42, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+            
+            if (scrollY > lastScrollY && scrollY > 500) {
+                navbar.style.transform = 'translateY(-100%)';
+            } else {
+                navbar.style.transform = 'translateY(0)';
+            }
+            
+            lastScrollY = scrollY;
+        });
+    </script>
+</body>
+</html>

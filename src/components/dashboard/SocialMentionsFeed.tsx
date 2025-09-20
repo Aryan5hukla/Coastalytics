@@ -276,26 +276,32 @@ const SocialMentionsFeed: React.FC = () => {
     }
   };
 
-  const triggerScraping = async () => {
+  const triggerRealTimeUpdate = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Try to invoke the function if available, otherwise just refresh the data
+      // Try to invoke the new real-time feed orchestrator
       try {
-        const { data, error } = await supabase.functions.invoke('realtime-scraper');
+        const { data, error } = await supabase.functions.invoke('realtime-feed-orchestrator');
         if (error) {
-          console.warn('Scraper function not available:', error.message);
-          // If function doesn't exist, just refresh the existing data
-          await fetchMentions();
-          return;
+          console.warn('Real-time orchestrator not available:', error.message);
+          // Fallback to the social media scraper
+          const { data: scraperData, error: scraperError } = await supabase.functions.invoke('social-media-scraper');
+          if (scraperError) {
+            console.warn('Social media scraper not available:', scraperError.message);
+            // Final fallback - just refresh the existing data
+            await fetchMentions();
+            return;
+          }
         }
         
-        // If function succeeded, wait a bit then refresh
-        setTimeout(fetchMentions, 2000);
+        console.log('✅ Real-time update triggered successfully');
+        // Wait a bit for processing then refresh
+        setTimeout(fetchMentions, 3000);
       } catch (functionError) {
         // Function doesn't exist or failed, just refresh existing data
-        console.warn('Scraper function unavailable, refreshing existing data:', functionError);
+        console.warn('Real-time functions unavailable, refreshing existing data:', functionError);
         await fetchMentions();
       }
       
@@ -337,11 +343,13 @@ const SocialMentionsFeed: React.FC = () => {
   const getSourceIcon = (source: string) => {
     const icons: { [key: string]: string } = {
       twitter: '🐦',
+      twitter_realtime: '🐦',
       facebook: '📘',
       instagram: '📷',
       youtube: '📺',
       reddit: '🤖',
       news_websites: '📰',
+      news_realtime: '📰',
       rss_feeds: '📡',
       official_sources: '🏛️'
     };
@@ -445,6 +453,23 @@ const SocialMentionsFeed: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-2">
+            {/* Real-time status indicator */}
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${usingSampleData ? 'bg-yellow-400' : 'bg-green-400'} animate-pulse`}></div>
+              <span className="text-xs text-slate-400">
+                {usingSampleData ? 'Sample Data' : 'Live Feed'}
+              </span>
+            </div>
+            
+            {/* Real-time update button */}
+            <button
+              onClick={triggerRealTimeUpdate}
+              disabled={loading}
+              className="p-2 rounded transition-colors bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 disabled:opacity-50"
+              title="Fetch latest real-time data"
+            >
+              <Zap size={16} className={loading ? 'animate-spin' : ''} />
+            </button>
             
             <button
               onClick={() => setShowAnalytics(!showAnalytics)}
@@ -453,6 +478,16 @@ const SocialMentionsFeed: React.FC = () => {
               }`}
             >
               <BarChart3 size={16} />
+            </button>
+            
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={`p-2 rounded transition-colors ${
+                autoRefresh ? 'bg-green-500/20 text-green-400' : 'bg-slate-600 text-slate-400'
+              }`}
+              title={autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
+            >
+              <Clock size={16} />
             </button>
             
           </div>
@@ -625,12 +660,21 @@ const SocialMentionsFeed: React.FC = () => {
                       )}
                     </div>
                     
-                    {mention.url && (
+                    {mention.url && mention.url.startsWith('http') && (
                       <a 
                         href={mention.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sky-400 hover:text-sky-300 text-xs flex items-center transition-colors"
+                        onClick={(e) => {
+                          // Validate URL before opening
+                          try {
+                            new URL(mention.url!);
+                          } catch {
+                            e.preventDefault();
+                            console.warn('Invalid URL:', mention.url);
+                          }
+                        }}
                       >
                         <ExternalLink className="mr-1" size={12} />
                         View original
